@@ -104,3 +104,28 @@ são estimativas da literatura, não medições em Guimarães. Antes de publicar
   dados do INE/GEP (Quadros de Pessoal) se forem obtidos.
 - As zonas fora da área têm actividade proporcional aos residentes (`outside_activity`).
 - Traçado das vias do PDM a partir de uma imagem (erro ~12 m) e ligações nas pontas assumidas.
+
+## Licença
+
+O **código** (scripts, `Makefile`, `params.toml`, cenários) está sob a [licença MIT](LICENSE):
+podes usar, copiar, alterar e redistribuir, mantendo o aviso de copyright.
+
+Os **dados** incluídos mantêm as licenças das fontes:
+
+| Ficheiro | Fonte | Licença |
+|---|---|---|
+| `data/gmr.osm.xml.gz` | © contribuidores do OpenStreetMap | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) — atribuição e partilha nos mesmos termos |
+| `data/census.csv` | INE, Censos 2021 (BGRI), derivado por `scripts/census.py` | dados abertos do INE, com citação da fonte |
+| `data/pdm/vias-propostas.png` | imagem divulgada com a revisão do PDM de Guimarães (Set 2026) | reproduzida para análise e crítica; direitos do autor original |
+| `data/pdm/tracado.geojson`, `transform.json`, `overlay.png` | derivados da imagem do PDM e do OSM por `tools/georef.py` | ODbL (derivado de OSM) |
+
+Os resultados publicados em [amigosdaecovia.org/simulacao](https://amigosdaecovia.org/simulacao)
+podem ser citados como: *Amigos da Ecovia de Guimarães, «Simulação do trânsito de Guimarães»,
+modelo ecovia-sim (versão = commit indicado na página)*.
+
+## Contribuir
+
+Críticas e correcções são bem-vindas, sobretudo às premissas marcadas `ASSUMPTION` em
+`params.toml`, aos traçados das vias do PDM e às contagens de tráfego. Abre uma *issue* ou um
+*pull request*; para contagens feitas no terreno, acrescenta-as a `data/counts.csv` com a data,
+o local e o método.
