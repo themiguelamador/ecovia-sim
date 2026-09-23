@@ -1,0 +1,5 @@
+.venv/
+out/
+data/ine/
+data/gmr.osm.xml
+__pycache__/

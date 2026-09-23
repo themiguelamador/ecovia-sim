@@ -1,0 +1,4 @@
+<additional>
+    <!-- per road segment, per hour: vehicles entered, mean speed, density, time loss -->
+    <edgeData id="hourly" period="3600" file="edgedata.xml" excludeEmpty="true"/>
+</additional>

@@ -1,0 +1,14 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "action": "modify",
+        "speed_kmh": 30,
+        "note": "Exemplo de alteração a uma via existente: Avenida D. João IV a 30 km/h (acalmia / prioridade ao autocarro)."
+      },
+      "geometry": { "type": "LineString", "coordinates": [[-8.29571, 41.43569], [-8.29373, 41.43536], [-8.29298, 41.43488], [-8.2923, 41.43519], [-8.2914, 41.4375], [-8.29093, 41.43864], [-8.29026, 41.44038], [-8.29008, 41.44093]] }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<title>Simulação de trânsito — Guimarães</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<style>
+  body { margin: 0; font: 14px/1.4 system-ui, sans-serif; color: #14201A; display: grid; grid-template-columns: 340px 1fr; height: 100vh; }
+  aside { padding: 16px; overflow-y: auto; border-right: 1px solid #ddd; }
+  #map { height: 100vh; }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; margin: 8px 0 16px; }
+  td, th { padding: 3px 4px; text-align: right; border-bottom: 1px solid #eee; font-size: 13px; }
+  td:first-child, th:first-child { text-align: left; }
+  .up { color: #b3261e; } .down { color: #1b6e3a; }
+  fieldset { border: 0; padding: 0; margin: 12px 0; }
+  label { display: block; margin: 2px 0; }
+  .legend { font-size: 12px; color: #555; }
+  input[type=range] { width: 100%; }
+  .tiles { filter: grayscale(1) contrast(.8) brightness(1.08); }
+</style>
+</head>
+<body>
+<aside>
+  <h1>Simulação de trânsito — Guimarães</h1>
+  <div class="legend" id="sub"></div>
+  <table id="kpi"></table>
+  <fieldset>
+    <strong>Hora: <span id="hl"></span></strong>
+    <input type="range" id="hour" min="-1" max="23" value="8">
+    <div class="legend">−1 = total do dia</div>
+  </fieldset>
+  <fieldset id="modes">
+    <strong>Mostrar</strong>
+    <label><input type="radio" name="mode" value="base"> Tráfego — cenário base</label>
+    <label class="scen"><input type="radio" name="mode" value="scen"> Tráfego — cenário</label>
+    <label class="scen"><input type="radio" name="mode" value="diff"> Diferença cenário − base</label>
+  </fieldset>
+  <fieldset>
+    <label><input type="checkbox" id="zones"> Pressão por zona (partidas + chegadas)</label>
+  </fieldset>
+  <p class="legend" id="leg"></p>
+  <p class="legend">Largura = veículos. Cor no modo tráfego = velocidade face ao limite (verde fluido → vermelho congestionado). Clicar numa via para ver os valores por hora.</p>
+</aside>
+<div id="map"></div>
+<script>
+const D = /*DATA*/null;
+const hasScen = D.runs.length > 1, S = D.scenario;
+document.querySelectorAll(".scen").forEach(e => e.style.display = hasScen ? "" : "none");
+document.querySelector(`input[value=${hasScen ? "diff" : "base"}]`).checked = true;
+document.getElementById("sub").textContent = hasScen ? `Cenário «${S}» comparado com o base` : "Cenário base";
+
+
+const L_ = [["trips","Viagens"],["veh_km","Veículos·km"],["veh_h","Veículos·hora"],["mean_trip_min","Duração média (min)"],["mean_delay_min","Atraso médio (min)"],["delay_h","Atraso total (h)"],["co2_t","CO₂ (t)"],["teleports","Bloqueios (teleportes)"]];
+const f = v => v.toLocaleString("pt-PT", {maximumFractionDigits: 1});
+document.getElementById("kpi").innerHTML = `<tr><th></th><th>base</th>${hasScen ? `<th>${S}</th><th>Δ</th>` : ""}</tr>` +
+  L_.map(([k, l]) => { const b = D.kpis.base[k], s = hasScen ? D.kpis[S][k] : 0, p = b ? (s - b) / b * 100 : 0;
+    return `<tr><td>${l}</td><td>${f(b)}</td>${hasScen ? `<td>${f(s)}</td><td class="${p > 0.05 ? "up" : p < -0.05 ? "down" : ""}">${p >= 0 ? "+" : ""}${p.toFixed(1)}%</td>` : ""}</tr>`; }).join("");
+
+const map = L.map("map", {preferCanvas: true}).setView([41.442, -8.29], 14);
+L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {attribution: "© OpenStreetMap", maxZoom: 19, className: "tiles"}).addTo(map);
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
+const sum = a => a.reduce((x, y) => x + y, 0);
+const vol = (r, h) => !r ? 0 : h < 0 ? sum(r.veh) : r.veh[h];
+const spd = (r, h) => { if (!r) return null; if (h >= 0) return r.speed[h];
+  const w = r.speed.map((s, i) => s == null ? 0 : r.veh[i]), t = sum(w); return t ? sum(r.speed.map((s, i) => (s || 0) * w[i])) / t : null; };
+const ramp = t => `hsl(${Math.max(0, Math.min(1, t)) * 120},75%,42%)`;
+
+const lines = D.edges.map(e => L.polyline(e.coords, {weight: 1}).addTo(map).bindPopup(() => popup(e)));
+function popup(e) {
+  const rows = [...Array(24).keys()].map(h => `<tr><td>${h}h</td>${D.runs.map(r => `<td>${vol(e[r], h)}</td><td>${e[r] && e[r].speed[h] != null ? e[r].speed[h] : "–"}</td>`).join("")}</tr>`).join("");
+  return `<b>${esc(e.name || e.id)}</b>${e.new ? " (nova via)" : ""}<br>limite ${e.limit} km/h<div style="max-height:260px;overflow:auto"><table><tr><th></th>${D.runs.map(r => `<th>${r} veíc.</th><th>km/h</th>`).join("")}</tr>${rows}</table></div>`;
+}
+
+const zoneLayer = L.layerGroup(D.zones.map(z => L.circle([z.lat, z.lon], {radius: 1, stroke: false, fillColor: "#7b3fa0", fillOpacity: .35})
+  .bindPopup(`<b>Zona</b><br>residentes ${z.residents}<br>empregos ${z.jobs}<br>ensino ${z.education}<br>comércio ${z.retail}`)));
+
+function draw() {
+  const h = +document.getElementById("hour").value, mode = document.querySelector("input[name=mode]:checked").value;
+  document.getElementById("hl").textContent = h < 0 ? "dia inteiro" : `${h}:00–${h + 1}:00`;
+  const div = h < 0 ? 24 : 1;  // day totals drawn as hourly averages so widths stay comparable
+  D.edges.forEach((e, i) => {
+    const run = mode === "scen" ? S : "base";
+    if (mode === "diff") {
+      const d = (vol(e[S], h) - vol(e.base, h)) / div;
+      lines[i].setStyle({weight: Math.min(14, 0.5 + Math.sqrt(Math.abs(d)) / 2.5), color: Math.abs(d) < 5 ? "#ccc" : d > 0 ? "#c62828" : "#1565c0", opacity: .85});
+    } else {
+      const v = vol(e[run], h) / div, s = spd(e[run], h);
+      lines[i].setStyle({weight: v ? Math.min(14, 0.5 + Math.sqrt(v) / 3) : 0.5, color: v ? ramp(s == null ? 1 : s / e.limit) : "#ddd", opacity: .85});
+    }
+  });
+  document.getElementById("leg").textContent = mode === "diff" ? "Vermelho: mais veículos no cenário. Azul: menos. Cinzento: < 5 veíc./h de diferença." : "";
+  const show = document.getElementById("zones").checked;
+  show ? zoneLayer.addTo(map) : zoneLayer.remove();
+  if (show) {
+    const p = D.zones.map(z => h < 0 ? sum(z.dep) + sum(z.arr) : z.dep[h] + z.arr[h]), m = Math.max(...p) || 1;
+    zoneLayer.getLayers().forEach((c, i) => c.setRadius(20 + 180 * Math.sqrt(p[i] / m)));
+  }
+}
+document.querySelectorAll("input").forEach(i => i.addEventListener("input", draw));
+draw();
+</script>
+</body>
+</html>
