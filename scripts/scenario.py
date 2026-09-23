@@ -7,9 +7,15 @@ Feature properties:
   speed_kmh  speed limit                   (add: default 50; modify: optional)
   oneway     true = only in drawing direction (add only)
   name       street name                   (add only)
-"add" line ends snap to an existing junction within 40 m, or to another added line's end,
-else they become new junctions. "modify"/"remove" affect every existing road segment lying
-within 25 m of the line along its whole length (both directions).
+"add" line ends snap to an existing junction within 60 m (traced PDM lines are only ~15 m
+accurate), or to another added line's end, else they become new junctions. A new junction
+left as a loose end (one road only) is joined by a straight connector to the nearest
+existing junction within 250 m: a planned road ends on a street, not in a field. "modify"/"remove"
+affect every existing road segment lying within 25 m of the line along its whole length.
+
+A scenario can also pull features from other files, filtered by property:
+  "include": [{"file": "../data/pdm/tracado.geojson", "group": ["ecovia"], "kind": "nova"}]
+(paths relative to the scenario file; list values match any, scalars match exactly).
 
 usage: scenario.py BASE_NET SCENARIO.geojson OUT_NET
 """
@@ -23,7 +29,7 @@ import tempfile
 sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
 import sumolib  # noqa: E402
 
-SNAP_M, MATCH_M = 40, 25
+SNAP_M, MATCH_M, CONNECT_M = 60, 25, 250
 
 
 def seg_dist(p, a, b):
@@ -49,6 +55,7 @@ def near_line(edge, line):
 
 def build(net, features):
     nodes, edges, remove, new_nodes, conns = [], [], [], [], []
+    degree = {}
 
     def feed(nid, new_edge, shape):
         # netconvert keeps a patched net's existing turning movements and ignores lane-less
@@ -81,10 +88,13 @@ def build(net, features):
         action = pr.get("action", "add")
         if action == "add":
             a, b = snap(*line[0]), snap(*line[-1])
+            if a == b:
+                continue  # short piece whose ends snap to the same junction
+            degree[a], degree[b] = degree.get(a, 0) + 1, degree.get(b, 0) + 1
             attrs = (f'numLanes="{pr.get("lanes", 1)}" speed="{pr.get("speed_kmh", 50) / 3.6:.2f}" '
                      f'priority="9" allow="passenger bus truck delivery emergency"')
-            if pr.get("name"):
-                attrs += f' name="{pr["name"]}"'
+            if pr.get("name") or pr.get("corridor"):
+                attrs += f' name="{pr.get("name") or pr["corridor"]}"'
             shape = " ".join(f"{x:.2f},{y:.2f}" for x, y in line)
             edges.append(f'  <edge id="scn{i}" from="{a}" to="{b}" {attrs} shape="{shape}"/>')
             feed(a, f"scn{i}", line)
@@ -107,13 +117,36 @@ def build(net, features):
                         upd += f' speed="{pr["speed_kmh"] / 3.6:.2f}"'
                     edges.append(f'  <edge id="{e.getID()}"{upd}/>')
             print(f"feature {i} ({action}): {len(hits)} edges: {' '.join(e.getID() for e in hits)}")
+    for nid, x, y in list(new_nodes):
+        if degree.get(nid) != 1:
+            continue
+        best = min(net.getNodes(), key=lambda n: math.dist(n.getCoord(), (x, y)))
+        if math.dist(best.getCoord(), (x, y)) > CONNECT_M:
+            continue
+        bx, by = best.getCoord()
+        attrs = 'numLanes="1" speed="13.89" priority="9" allow="passenger bus truck delivery emergency" name="Ligação à rua mais próxima (assumida)"'
+        edges.append(f'  <edge id="scnc_{nid}" from="{nid}" to="{best.getID()}" {attrs}/>')
+        edges.append(f'  <edge id="-scnc_{nid}" from="{best.getID()}" to="{nid}" {attrs}/>')
+        feed(best.getID(), f"-scnc_{nid}", [(bx, by), (x, y)])
     return nodes, edges, remove, conns
+
+
+def load_features(path):
+    fc = json.load(open(path))
+    feats = list(fc.get("features", []))
+    for inc in fc.get("include", []):
+        crit = {k: v for k, v in inc.items() if k != "file"}
+        for f in load_features(os.path.join(os.path.dirname(path), inc["file"])):
+            pr = f.get("properties") or {}
+            if all(pr.get(k) in (v if isinstance(v, list) else [v]) for k, v in crit.items()):
+                feats.append(f)
+    return feats
 
 
 if __name__ == "__main__":
     base, scen, out = sys.argv[1:4]
     net = sumolib.net.readNet(base)
-    nodes, edges, remove, conns = build(net, json.load(open(scen))["features"])
+    nodes, edges, remove, conns = build(net, load_features(scen))
     tmp = tempfile.mkdtemp()
     open(f"{tmp}/n.nod.xml", "w").write("<nodes>\n" + "\n".join(nodes) + "\n</nodes>\n")
     open(f"{tmp}/e.edg.xml", "w").write("<edges>\n" + "\n".join(edges) + "\n</edges>\n")

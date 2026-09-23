@@ -94,6 +94,7 @@ for r in csv.DictReader(open(census_file)):
 # --- attractors (OSM) ------------------------------------------------------------------
 W = P["attractors"]
 nodes, heavy_seen = {}, defaultdict(list)
+projects = [dict(p, xy=net.convertLonLat2XY(p["lon"], p["lat"])) for p in P.get("projects", []) if p["year"] <= P["horizon"]]
 
 
 def match(tags):
@@ -110,6 +111,8 @@ def feature(tags, pts):
     xy = [net.convertLonLat2XY(lon, lat) for lon, lat in pts]
     x, y = sum(p[0] for p in xy) / len(xy), sum(p[1] for p in xy) / len(xy)
     w = W[key]
+    if any(key == p.get("replaces") and math.dist((x, y), p["xy"]) <= p["radius_m"] for p in projects):
+        return
     if w.get("heavy"):
         if any(math.hypot(x - hx, y - hy) < 300 for hx, hy in heavy_seen[key]):
             return
@@ -130,6 +133,10 @@ for _, el in ET.iterparse(gzip.open(osm_file)):
         feature(tags, [nodes[n.get("ref")] for n in el.iter("nd") if n.get("ref") in nodes])
     el.clear()
 
+for p in projects:
+    for attr in ("jobs", "education", "retail"):
+        add(*p["xy"], attr, p.get(attr, 0))
+
 inner = [z for z in zones.values() if not z.outer]
 # Outside the study area we only know residents; estimate their jobs/retail/education from
 # the inner ratio times `outside_activity` (the city centre concentrates activity).
@@ -149,7 +156,7 @@ for n in net.getNodes():
     if min(x - xmin, xmax - x, y - ymin, ymax - y) > 700 or len({e.getToNode() for e in ins} | {e.getFromNode() for e in outs}) != 1:
         continue
     t = base_type((ins or outs)[0])
-    if t in P["gate_daily_vehicles"]:
+    if t in P["gate_weight"]:
         (entries if ins else exits).append((n, t))
         if ins and outs:
             exits.append((n, t))
@@ -216,7 +223,10 @@ for name, p in P["purposes"].items():
             if p["back_profile"]:
                 emit(d, o, p["attractor"], p["producer"], n, p["back_profile"])
 
-# inter-municipal traffic at each gate: part into the centre, part straight through
+# inter-municipal traffic: each PDM corridor's volume split between the gates facing it
+corr = P["corridors"]
+for g in gates:
+    g["corridor"] = min(corr, key=lambda c: angdiff(corr[c]["bearing"], g["bearing"]))
 act = {z: z.a["jobs"] + z.a["retail"] + z.a["education"] for z in inner}
 gate_z = {}
 for g in gates:
@@ -224,16 +234,20 @@ for g in gates:
     gz.gate = g
     gate_z[g["node"]] = gz
     zones[gz.key] = gz
+for c, cv in corr.items():
+    members = [g for g in gates if g["corridor"] == c]
+    wsum = sum(P["gate_weight"][g["type"]] for g in members)
+    for g in members:
+        g["daily_in"] = cv["tmda"] / 2 * P["corridor_to_city"] * P["scale"] * P["gate_weight"][g["type"]] / wsum
 for g in gates:
-    vol = P["gate_daily_vehicles"][g["type"]] * P["scale"]
+    vol = g["daily_in"]
     thr = vol * P["through_share"]
     others = [h for h in gates if h is not g and h["out"]]
-    ow = [P["gate_daily_vehicles"][h["type"]] * (1 - math.cos(math.radians(angdiff(g["bearing"], h["bearing"])))) / 2
+    ow = [P["gate_weight"][h["type"]] * (1 - math.cos(math.radians(angdiff(g["bearing"], h["bearing"])))) / 2
           for h in others]
     for h in rng.choices(others, weights=ow, k=stochastic_round(thr)) if others and sum(ow) else []:
         emit(gate_z[g["node"]], gate_z[h["node"]], None, None, 1, "through")
-    n_in = stochastic_round(vol - thr)
-    for z in rng.choices(list(act), weights=list(act.values()), k=n_in):
+    for z in rng.choices(list(act), weights=list(act.values()), k=stochastic_round(vol - thr)):
         emit(gate_z[g["node"]], z, None, "jobs", 1, "through")
         emit(z, gate_z[g["node"]], "jobs", None, 1, "through") if g["out"] else None
 
@@ -245,11 +259,23 @@ with open(trips_out, "w") as f:
         f.write(f'  <trip id="{i}" type="car" depart="{t:.1f}" from="{a}" to="{b}" departLane="best" departSpeed="max"/>\n')
     f.write("</routes>\n")
 
+entering = defaultdict(int)
+gate_of_edge = {g["inn"]: g for g in gates}
+for _, f, _t in trips:
+    if f in gate_of_edge:
+        entering[gate_of_edge[f]["corridor"]] += 1
+
 out = []
 for z in inner:
     lon, lat = net.convertXY2LonLat(z.x, z.y)
     out.append(dict(lon=round(lon, 5), lat=round(lat, 5), **{a: round(z.a[a]) for a in ATTRS}, dep=z.dep, arr=z.arr))
-json.dump(dict(zone_size_m=Z, zones=out, gates=[{k: g[k] for k in ("node", "type", "bearing")} for g in gates]),
-          open(zones_out, "w"))
+json.dump(dict(
+    zone_size_m=Z, zones=out, totals={a: round(tot[a]) for a in ATTRS}, trips=len(trips),
+    entering_per_day=sum(entering.values()), entering_by_corridor=dict(entering),
+    gates=[{"lonlat": [round(v, 5) for v in net.convertXY2LonLat(g["x"], g["y"])], **{k: g[k] for k in ("node", "type", "corridor")},
+            "daily_in": round(g["daily_in"])} for g in gates],
+    projects=[{k: p[k] for k in p if k != "xy"} for p in projects]), open(zones_out, "w"), ensure_ascii=False)
 print(f"{len(trips)} car trips, {len(inner)} inner zones, {len(zl) - len(inner)} outer zones, {len(gates)} gates; "
       + ", ".join(f"{a}={tot[a]:.0f}" for a in ATTRS))
+print(f"vehicles entering the study area per day: {sum(entering.values())} (PDM: ~69 000 in 2019, up to ~100 000) "
+      + " ".join(f"{c}={n}" for c, n in sorted(entering.items())))

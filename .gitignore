@@ -3,3 +3,6 @@ out/
 data/ine/
 data/gmr.osm.xml
 __pycache__/
+web/
+out_dev/
+web_dev/

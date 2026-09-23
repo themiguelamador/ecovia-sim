@@ -3,21 +3,29 @@
 
 seed = 42
 scale = 1.0                  # multiply every trip count (0.1 for quick test runs)
+horizon = 2030               # projects with year <= horizon are in the demand (see [[projects]])
 zone_size_m = 400            # grid cell size for inner zones
 
 # --- mode choice (car share by distance) -------------------------------------------
 # P(car) = car_share_max * (1 - exp(-d / car_half_km)). Short trips mostly walk.
-# PDM diagnostic: ~68% of trips in the municipality by car.
+# Census 2021 (PDM Vol. VI, Gráfico 2): 72.6% of commutes by car, 11.9% public transport,
+# 15.3% walking/cycling. With these values a 3 km trip is ~72% car, a 500 m trip ~26%.
 car_share_max = 0.78
 car_half_km = 1.2
 occupancy = 1.3              # people per car (escort trips, car-sharing)
 
 # --- external demand (people from outside the study area) ----------------------------
 # Residents of the rest of the municipality (INE census) are routed through the nearest
-# gate by bearing. Other municipalities (Braga, Fafe, Vizela, Famalicão, ...) are only
-# represented as extra vehicles per day per gate ([gate_daily_vehicles], by road class).
+# gate (main road crossing the study-area border) by bearing. Traffic from other
+# municipalities comes from [corridors]: PDM Vol. VI, Figura 4, TMDA 2021 on the national
+# roads at the municipal border, both directions. Half of it is each direction;
+# `corridor_to_city` of that reaches the study area (the rest stops in Taipas, Ponte,
+# Pevidém...), and `through_share` of what arrives crosses without stopping.
+# Check: the PDM estimates 69 000 vehicles/day entering the city (2019), "possibly close
+# to 100 000" after the pandemic; demand.py prints the model's figure.
 outside_trip_factor = 1.0    # scale for municipality residents outside the study area
-through_share = 0.4          # share of gate traffic that crosses the area without stopping
+corridor_to_city = 0.65          # calibrated so entries match the PDM 2019 estimate (~69 000/day)
+through_share = 0.3
 outside_activity = 0.5      # jobs/retail/schools per resident outside, relative to the centre's ratio
 
 # --- trip generation -------------------------------------------------------------
@@ -52,12 +60,19 @@ beta_per_km = 0.7
 out_profile = "midday"
 back_profile = ""            # no return leg
 
-[gate_daily_vehicles]        # per direction per day, extra inter-municipal traffic
-"highway.motorway" = 6000
-"highway.trunk" = 5000
-"highway.primary" = 3000
-"highway.secondary" = 1500
-"highway.tertiary" = 400
+[corridors]                  # bearing from the centre (degrees) and TMDA 2021, both directions
+noroeste = { bearing = 315, tmda = 33606 }   # Braga, EN101 / A11
+poente = { bearing = 270, tmda = 41524 }     # Famalicão, EN206 / A7
+sudoeste = { bearing = 225, tmda = 22084 }   # Santo Tirso, EN105
+sul = { bearing = 180, tmda = 19459 }        # Vizela, EN106
+nascente = { bearing = 90, tmda = 21455 }    # Fafe, EN206 / A7
+
+[gate_weight]                # how a corridor's traffic splits between its gates, by road class
+"highway.motorway" = 6
+"highway.trunk" = 5
+"highway.primary" = 3
+"highway.secondary" = 2
+"highway.tertiary" = 1
 
 # --- attraction weights from OpenStreetMap -----------------------------------------
 # Units: jobs / education places / retail "units" per feature. Heavy features closer
@@ -87,6 +102,41 @@ craft = { jobs = 4 }
 "landuse=industrial" = { jobs_per_ha = 40 }
 "landuse=commercial" = { jobs_per_ha = 60, retail_per_ha = 5 }
 "landuse=retail" = { jobs_per_ha = 40, retail_per_ha = 20 }
+
+# --- named facilities -----------------------------------------------------------------
+# Override the generic OSM weights for large facilities with their own numbers, and add
+# planned ones. `replaces` drops OSM features of that key within `radius_m` (so the campus
+# and each of its buildings are not counted again). `year` > horizon = not built yet.
+# visitors are in retail units (1 unit ~ a small shop's pull).
+[[projects]]
+name = "Universidade do Minho – Campus de Azurém"
+lon = -8.28947
+lat = 41.45295
+year = 0
+education = 6500             # ASSUMPTION: ~1/3 of UMinho's ~20 000 students; confirm with UMinho
+jobs = 700
+replaces = "amenity=university"
+radius_m = 600
+
+[[projects]]
+name = "Hospital da Senhora da Oliveira"
+lon = -8.30518
+lat = 41.44216
+year = 0
+jobs = 2300                  # ASSUMPTION: order of magnitude of staff; confirm with ULS Alto Ave
+retail = 60                  # outpatients and visitors
+replaces = "amenity=hospital"
+radius_m = 700
+
+[[projects]]
+name = "Campus da Justiça (previsto)"
+lon = -8.27367
+lat = 41.44783               # Academia de Ginástica site, next to the Parque da Cidade
+year = 2029
+jobs = 450                   # ASSUMPTION: magistrates, officials, lawyers; no public figure found
+retail = 40                  # ASSUMPTION: ~1 200 users/day
+replaces = "amenity=courthouse"  # the campus concentrates the courts now spread around the centre
+radius_m = 2500
 
 # --- time of day ---------------------------------------------------------------------
 # Share of the day's departures per hour (0..23). Normalised automatically.

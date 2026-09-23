@@ -1,0 +1,18 @@
+{
+ "type": "FeatureCollection",
+ "title": "S5 · PDM completo",
+ "description": "Todas as vias novas do PDM, incluindo a via sobre a Ecovia.",
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "ecovia",
+    "circular",
+    "urgezes",
+    "outras"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}

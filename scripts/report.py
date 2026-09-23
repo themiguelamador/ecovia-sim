@@ -18,7 +18,7 @@ runs = ["base"] if scen == "base" else ["base", scen]
 
 def kpis(run):
     k = defaultdict(float)
-    for _, el in ET.iterparse(f"{out}/{run}/tripinfo.xml"):
+    for _, el in ET.iterparse(f"{out}/{run}/seed1/tripinfo.xml"):
         if el.tag == "tripinfo":
             k["trips"] += 1
             k["veh_km"] += float(el.get("routeLength")) / 1000
@@ -28,7 +28,7 @@ def kpis(run):
             em = el.find("emissions")
             k["co2_t"] += float(em.get("CO2_abs")) / 1e9 if em is not None else 0
             el.clear()
-    st = ET.parse(f"{out}/{run}/stats.xml").getroot()
+    st = ET.parse(f"{out}/{run}/seed1/stats.xml").getroot()
     k["not_inserted"] = int(st.find("vehicles").get("loaded")) - int(st.find("vehicles").get("inserted"))
     k["teleports"] = int(st.find("teleports").get("total"))
     k["mean_trip_min"] = k["veh_h"] * 60 / k["trips"]
@@ -39,7 +39,7 @@ def kpis(run):
 def hourly(run):
     """edge -> {'veh': [24], 'speed': [24]}"""
     d = defaultdict(lambda: {"veh": [0] * 24, "speed": [None] * 24})
-    for iv in ET.parse(f"{out}/{run}/edgedata.xml").getroot():
+    for iv in ET.parse(f"{out}/{run}/seed1/edgedata.xml").getroot():
         h = int(float(iv.get("begin")) // 3600)
         if h > 23:
             continue

@@ -1,0 +1,19 @@
+{
+ "type": "FeatureCollection",
+ "title": "S5 + procura induzida",
+ "description": "Todas as vias novas do PDM, incluindo a via sobre a Ecovia. Com procura induzida: viagens que ficam mais rápidas aumentam (elasticidade −0,5).",
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "ecovia",
+    "circular",
+    "urgezes",
+    "outras"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": [],
+ "elasticity": -0.5
+}

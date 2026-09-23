@@ -1,0 +1,16 @@
+{
+ "type": "FeatureCollection",
+ "title": "S3 · Ecovia + Circular",
+ "description": "As duas ligações juntas: um eixo contínuo da estação à Circular urbana, pelas traseiras do futuro Campus da Justiça.",
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "ecovia",
+    "circular"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}

@@ -1,0 +1,17 @@
+{
+ "type": "FeatureCollection",
+ "title": "S4 · PDM sem a via da Ecovia",
+ "description": "Todas as vias novas do PDM excepto a que ocupa a Ecovia.",
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "circular",
+    "urgezes",
+    "outras"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}
