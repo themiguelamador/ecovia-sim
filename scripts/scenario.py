@@ -48,7 +48,20 @@ def near_line(edge, line):
 
 
 def build(net, features):
-    nodes, edges, remove, new_nodes = [], [], [], []
+    nodes, edges, remove, new_nodes, conns = [], [], [], [], []
+
+    def feed(nid, new_edge, shape):
+        # netconvert keeps a patched net's existing turning movements and ignores lane-less
+        # connections, so roads already at a snapped junction are wired in lane by lane:
+        # left turns from the leftmost lane, everything else from the rightmost.
+        if nid in {n[0] for n in new_nodes}:
+            return
+        (ox, oy), (px, py) = shape[0], shape[1]
+        for e in net.getNode(nid).getIncoming():
+            (ax, ay), (bx, by) = e.getShape()[-2:]
+            left = (bx - ax) * (py - oy) - (by - ay) * (px - ox) > 0
+            lane = e.getLaneNumber() - 1 if left else 0
+            conns.append(f'  <connection from="{e.getID()}" to="{new_edge}" fromLane="{lane}" toLane="0"/>')
 
     def snap(x, y):
         for nid, nx, ny in new_nodes:
@@ -74,9 +87,11 @@ def build(net, features):
                 attrs += f' name="{pr["name"]}"'
             shape = " ".join(f"{x:.2f},{y:.2f}" for x, y in line)
             edges.append(f'  <edge id="scn{i}" from="{a}" to="{b}" {attrs} shape="{shape}"/>')
+            feed(a, f"scn{i}", line)
             if not pr.get("oneway"):
                 rshape = " ".join(f"{x:.2f},{y:.2f}" for x, y in reversed(line))
                 edges.append(f'  <edge id="-scn{i}" from="{b}" to="{a}" {attrs} shape="{rshape}"/>')
+                feed(b, f"-scn{i}", line[::-1])
         else:
             hits = [e for e in net.getEdges() if near_line(e, line)]
             if not hits:
@@ -92,18 +107,26 @@ def build(net, features):
                         upd += f' speed="{pr["speed_kmh"] / 3.6:.2f}"'
                     edges.append(f'  <edge id="{e.getID()}"{upd}/>')
             print(f"feature {i} ({action}): {len(hits)} edges: {' '.join(e.getID() for e in hits)}")
-    return nodes, edges, remove
+    return nodes, edges, remove, conns
 
 
 if __name__ == "__main__":
     base, scen, out = sys.argv[1:4]
     net = sumolib.net.readNet(base)
-    nodes, edges, remove = build(net, json.load(open(scen))["features"])
+    nodes, edges, remove, conns = build(net, json.load(open(scen))["features"])
     tmp = tempfile.mkdtemp()
     open(f"{tmp}/n.nod.xml", "w").write("<nodes>\n" + "\n".join(nodes) + "\n</nodes>\n")
     open(f"{tmp}/e.edg.xml", "w").write("<edges>\n" + "\n".join(edges) + "\n</edges>\n")
+    open(f"{tmp}/c.con.xml", "w").write("<connections>\n" + "\n".join(conns) + "\n</connections>\n")
     cmd = [os.path.join(os.environ["SUMO_HOME"], "bin", "netconvert"), "--sumo-net-file", base,
-           "-n", f"{tmp}/n.nod.xml", "-e", f"{tmp}/e.edg.xml", "-o", out, "--no-warnings"]
+           "-n", f"{tmp}/n.nod.xml", "-e", f"{tmp}/e.edg.xml", "-x", f"{tmp}/c.con.xml", "-o", out, "--no-warnings"]
     if remove:
         cmd += ["--remove-edges.explicit", ",".join(remove)]
     subprocess.run(cmd, check=True)
+    # guard: a new road nobody can drive onto silently carries zero traffic
+    patched = sumolib.net.readNet(out)
+    new_ids = {n.split('"')[1] for n in nodes}
+    dead = [e.getID() for e in patched.getEdges()
+            if e.getID().lstrip("-").startswith("scn") and not e.getIncoming() and e.getFromNode().getID() not in new_ids]
+    if dead:
+        sys.exit(f"new edges with no way in: {dead}")
