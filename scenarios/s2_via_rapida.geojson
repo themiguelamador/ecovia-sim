@@ -1,0 +1,16 @@
+{
+ "type": "FeatureCollection",
+ "title": "S2 · Via rápida sem a Ecovia",
+ "description": "Ligações à via rápida que não usam a Ecovia: Parque da Cidade – Circular urbana e a nova ligação da rotunda da Av. D. João IV a Urgezes.",
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "circular",
+    "urgezes_main"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}

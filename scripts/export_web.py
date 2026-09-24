@@ -24,7 +24,7 @@ import sumolib  # noqa: E402
 
 out, web = sys.argv[1:3]
 T975 = {2: 12.71, 3: 4.30, 4: 3.18, 5: 2.78, 6: 2.57, 7: 2.45, 8: 2.36, 9: 2.31, 10: 2.26}  # t(0.975, n-1)
-KPI = ("trips", "veh_km", "veh_h", "mean_trip_min", "delay_h", "co2_t", "teleports", "bus_kmh", "walk_wait_s")
+KPI = ("trips", "veh_km", "veh_h", "mean_trip_min", "delay_h", "co2_t", "teleports", "not_inserted", "bus_kmh", "walk_wait_s")
 TYPE_CODE = {"car": 0, "bus": 1, "delivery": 2}
 ANIM_FROM, ANIM_TO, ANIM_STEP = 8 * 3600, 9 * 3600, 4
 
@@ -52,7 +52,9 @@ def kpis(run):
                     walks += 1
                     k["walk_wait_s"] += float(w.get("timeLoss"))
             el.clear()
-    k["teleports"] = int(ET.parse(f"{run}/stats.xml").getroot().find("teleports").get("total"))
+    st = ET.parse(f"{run}/stats.xml").getroot()
+    k["teleports"] = int(st.find("teleports").get("total"))
+    k["not_inserted"] = int(st.find("vehicles").get("loaded")) - int(st.find("vehicles").get("inserted"))
     k["mean_trip_min"] = k["veh_h"] * 60 / k["trips"]
     k["bus_kmh"] = bus_km / bus_h if bus_h else 0
     k["walk_wait_s"] = k["walk_wait_s"] / walks if walks else 0

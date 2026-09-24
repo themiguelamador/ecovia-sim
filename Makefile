@@ -71,13 +71,17 @@ out/%.trips.xml: out/trips.xml out/%.net.xml scripts/induce.py
 
 # --- simulation ------------------------------------------------------------------------
 # Trips are routed at departure on current travel times and re-routed every 2 min
-# (device.rerouting), so drivers adapt to congestion and to new roads. A vehicle stuck
-# inside a junction for 60 s stops blocking it (avoids artificial chain gridlocks). Seed 1 also
+# (device.rerouting), so drivers adapt to congestion and to new roads. Gridlock guards,
+# standard for city-wide models (without them some seeds lock up for hours in the PM peak
+# and scenario results depend on luck): a vehicle stuck 120 s is removed and counted as a
+# teleport ("bloqueio"); one that cannot enter the network within 15 min gives up and is
+# counted as not inserted; a vehicle stuck inside a junction for 20 s stops blocking it. Seed 1 also
 # records 12% of cars, every bus and van, every 2 s from 7:00 (fcd.xml) for the web animation.
 SIM := --begin 0 --end 90000 --device.rerouting.probability 1 --device.rerouting.period 120 \
   --device.rerouting.adaptation-steps 18 --routing-algorithm astar --device.emissions.probability 1 \
-  --time-to-teleport 300 --ignore-route-errors --no-step-log --no-warnings --duration-log.statistics \
-  --pedestrian.model striping --tripinfo-output.write-unfinished --ignore-junction-blocker 60
+  --time-to-teleport 120 --max-depart-delay 900 --ignore-route-errors --no-step-log --no-warnings \
+  --duration-log.statistics --pedestrian.model striping --tripinfo-output.write-unfinished \
+  --ignore-junction-blocker 20
 FCD := --fcd-output fcd.xml --fcd-output.geo --fcd-output.attributes x,y,speed,type \
   --device.fcd.probability 0.12 --device.fcd.begin 25200 --device.fcd.period 2 --person-device.fcd.probability 0
 

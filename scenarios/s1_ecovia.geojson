@@ -1,7 +1,7 @@
 {
  "type": "FeatureCollection",
  "title": "S1 · Via sobre a Ecovia",
- "description": "Só a ligação Av. D. João IV – Parque da Cidade, construída sobre a Ecovia.",
+ "description": "Só a ligação Av. D. João IV – Parque da Cidade construída sobre a Ecovia: uma estrada contínua, com uma rotunda a meio.",
  "include": [
   {
    "file": "../data/pdm/tracado.geojson",

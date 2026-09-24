@@ -1,7 +1,7 @@
 {
  "type": "FeatureCollection",
  "title": "S3 + procura induzida",
- "description": "As duas ligações juntas: um eixo contínuo da estação à Circular urbana, pelas traseiras do futuro Campus da Justiça. Com procura induzida: viagens que ficam mais rápidas aumentam (elasticidade −0,5).",
+ "description": "A via sobre a Ecovia mais a ligação Parque da Cidade – Circular: um eixo contínuo da estação à Circular urbana, pelas traseiras do futuro Campus da Justiça. Com procura induzida: viagens que ficam mais rápidas aumentam (elasticidade −0,5).",
  "include": [
   {
    "file": "../data/pdm/tracado.geojson",

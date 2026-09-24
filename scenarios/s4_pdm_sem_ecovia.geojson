@@ -7,6 +7,7 @@
    "file": "../data/pdm/tracado.geojson",
    "group": [
     "circular",
+    "urgezes_main",
     "urgezes",
     "outras"
    ],

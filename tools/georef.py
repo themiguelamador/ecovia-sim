@@ -56,6 +56,19 @@ GROUPS = [
     ("urgezes", "Ligações Centro cidade – Urgezes", (370, 620, 650, 1037)),
     ("outras", "Outras vias propostas no PDM", (0, 0, 1567, 1037)),
 ]
+# Main PDM roads traced as ONE continuous path along the red line through these image
+# waypoints (start, junctions on the way, end); each leg becomes one road, so the road only
+# connects to the network at the waypoints. Tracing fragments along them are dropped.
+MAIN_ROADS = [
+    ("ecovia", "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
+     [(585, 682), (704, 561), (948, 358)]),     # D. João IV roundabout -> mid roundabout -> Parque da Cidade
+    ("urgezes_main", "Ligação Av. D. João IV – Urgezes",
+     [(585, 682), (540, 995)]),                 # same roundabout, straight south to Urgezes
+    ("circular", "Ligação Parque da Cidade – Circular urbana",
+     [(1043, 285), (1015, 165), (1017, 72)]),   # Parque da Cidade -> roundabout -> Circular interchange
+]
+# groups represented only by their main road; their other traced pieces become "outras"
+MAIN_ONLY = {"ecovia": False, "circular": True}  # False = drop the pieces, True = keep them as "outras"
 EXISTING_M, EXISTING_SHARE = 25, 0.7   # "existente" if >=70% of the segment is within 25 m of a road
 DRIVABLE = {"motorway", "trunk", "primary", "secondary", "tertiary", "unclassified", "residential",
             "living_street", "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link"}
@@ -96,10 +109,50 @@ def m_to_px(T, m):
     return np.c_[p[:, 0], -p[:, 1]]
 
 
+def skeleton(mask):
+    return set(zip(*np.nonzero(skeletonize(closing(mask, disk(2))))))
+
+
+def path_between(pts, a, b, gap=15, jump_cost=3.0):
+    """cheapest path over skeleton pixels between the pixels nearest to a and b (x, y).
+    The drawn line has small breaks, so hops of up to `gap` px are allowed, costing
+    `jump_cost` times their length (the path follows the line wherever it can)."""
+    import heapq
+    arr = np.array(list(pts))
+    near = lambda q: tuple(int(v) for v in arr[np.argmin(((arr - (q[1], q[0])) ** 2).sum(1))])
+    start, goal = near(a), near(b)
+    grid = {}
+    for p in pts:
+        grid.setdefault((p[0] // gap, p[1] // gap), []).append(p)
+    best, prev, heap = {start: 0.0}, {start: None}, [(0.0, start)]
+    while heap:
+        c, p = heapq.heappop(heap)
+        if p == goal:
+            break
+        if c > best[p]:
+            continue
+        gy, gx = p[0] // gap, p[1] // gap
+        for cy in (gy - 1, gy, gy + 1):
+            for cx in (gx - 1, gx, gx + 1):
+                for q in grid.get((cy, cx), ()):
+                    d = math.hypot(q[0] - p[0], q[1] - p[1])
+                    if 0 < d <= gap:
+                        nc = c + (d if d < 1.5 else d * jump_cost)
+                        if nc < best.get(q, 1e18):
+                            best[q], prev[q] = nc, p
+                            heapq.heappush(heap, (nc, q))
+    if goal not in prev:
+        raise SystemExit(f"no red-line path between {a} and {b}")
+    out, p = [], goal
+    while p is not None:
+        out.append((p[1], p[0]))
+        p = prev[p]
+    return np.array(out[::-1], float)
+
+
 def trace(mask, min_px=12):
     """skeleton -> list of pixel polylines split at junctions and ends"""
-    sk = skeletonize(closing(mask, disk(2)))
-    pts = set(zip(*np.nonzero(sk)))
+    pts = skeleton(mask)
     nb = lambda p: [(p[0] + dy, p[1] + dx) for dy in (-1, 0, 1) for dx in (-1, 0, 1) if (dy or dx) and (p[0] + dy, p[1] + dx) in pts]
     deg = {p: len(nb(p)) for p in pts}
     seen, lines = set(), []
@@ -176,11 +229,30 @@ if __name__ == "__main__":
     near_road = lambda q: any(np.hypot(*(np.array(c) - q).T).min() <= EXISTING_M
                               for dx in (-1, 0, 1) for dy in (-1, 0, 1)
                               for c in [cell.get((int(q[0] // EXISTING_M) + dx, int(q[1] // EXISTING_M) + dy))] if c)
-    feats = []
-    for line in trace(red_mask(im)):
+    feats, mask = [], red_mask(im)
+    sk, main_px = skeleton(mask), []
+    for key, name, wps in MAIN_ROADS:
+        for a, b in zip(wps, wps[1:]):
+            leg = path_between(sk, a, b)
+            leg[0], leg[-1] = a, b  # legs meet exactly at the waypoints, so they snap together
+            main_px.append(leg)
+            m = px_to_m(T, rdp(leg, 1.5))
+            feats.append({"type": "Feature", "properties": {
+                "group": key, "corridor": name, "kind": "nova", "main": True,
+                "length_m": round(float(np.linalg.norm(np.diff(m, axis=0), axis=1).sum())), "share_on_existing_road": 0},
+                "geometry": {"type": "LineString", "coordinates": to_lonlat(m).round(6).tolist()}})
+    main_all = np.vstack(main_px)
+    for line in trace(mask):
+        # fragments running along a main road are replaced by it
+        if np.mean(np.sqrt(((line[:, None, :] - main_all[None]) ** 2).sum(-1)).min(1) < 6) > 0.6:
+            continue
         simple = rdp(line, 1.5)
         mid = line[len(line) // 2]
         key, name, _ = next(g for g in GROUPS if g[2][0] <= mid[0] <= g[2][2] and g[2][1] <= mid[1] <= g[2][3])
+        if key in MAIN_ONLY:
+            if not MAIN_ONLY[key]:
+                continue  # the Ecovia road is only the main path above
+            key, name = "outras", "Outras vias propostas no PDM"  # ramps and branches around the Circular link
         m = px_to_m(T, simple)
         samples = densify(m, 10)
         share = float(np.mean([near_road(q) for q in samples]))
@@ -191,6 +263,6 @@ if __name__ == "__main__":
             "geometry": {"type": "LineString", "coordinates": to_lonlat(m).round(6).tolist()}})
     json.dump({"type": "FeatureCollection", "source": "Imagem das vias propostas no PDM de Guimarães (2026), georreferenciada com tools/georef.py", "features": feats},
               open("data/pdm/tracado.geojson", "w"), ensure_ascii=False, indent=0)
-    for g in dict.fromkeys(g[0] for g in GROUPS):
+    for g in dict.fromkeys([g[0] for g in GROUPS] + [m[0] for m in MAIN_ROADS]):
         fs = [f["properties"] for f in feats if f["properties"]["group"] == g]
         print(f"{g:9} nova {sum(f['length_m'] for f in fs if f['kind'] == 'nova'):6} m   existente {sum(f['length_m'] for f in fs if f['kind'] == 'existente'):6} m   ({len(fs)} segmentos)")

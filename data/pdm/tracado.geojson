@@ -5,6 +5,342 @@
 {
 "type": "Feature",
 "properties": {
+"group": "ecovia",
+"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
+"kind": "nova",
+"main": true,
+"length_m": 754,
+"share_on_existing_road": 0
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.292677,
+41.434596
+],
+[
+-8.292154,
+41.43462
+],
+[
+-8.291147,
+41.434848
+],
+[
+-8.290606,
+41.435301
+],
+[
+-8.290387,
+41.436013
+],
+[
+-8.290081,
+41.436544
+],
+[
+-8.28969,
+41.436822
+],
+[
+-8.288062,
+41.437143
+],
+[
+-8.287526,
+41.437453
+],
+[
+-8.286719,
+41.438618
+],
+[
+-8.286855,
+41.4388
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "ecovia",
+"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
+"kind": "nova",
+"main": true,
+"length_m": 1490,
+"share_on_existing_road": 0
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.286855,
+41.4388
+],
+[
+-8.286622,
+41.438687
+],
+[
+-8.28632,
+41.439111
+],
+[
+-8.285928,
+41.439389
+],
+[
+-8.285592,
+41.439488
+],
+[
+-8.283594,
+41.43955
+],
+[
+-8.28302,
+41.439644
+],
+[
+-8.281842,
+41.440585
+],
+[
+-8.279778,
+41.441112
+],
+[
+-8.279332,
+41.441567
+],
+[
+-8.279226,
+41.441852
+],
+[
+-8.279256,
+41.442283
+],
+[
+-8.279692,
+41.443261
+],
+[
+-8.279725,
+41.44362
+],
+[
+-8.279654,
+41.444192
+],
+[
+-8.279356,
+41.444508
+],
+[
+-8.278532,
+41.444919
+],
+[
+-8.274981,
+41.445806
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes_main",
+"corridor": "Ligação Av. D. João IV – Urgezes",
+"kind": "nova",
+"main": true,
+"length_m": 1301,
+"share_on_existing_road": 0
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.292677,
+41.434596
+],
+[
+-8.292539,
+41.434485
+],
+[
+-8.2926,
+41.432981
+],
+[
+-8.292921,
+41.432092
+],
+[
+-8.292939,
+41.431626
+],
+[
+-8.293315,
+41.430559
+],
+[
+-8.293329,
+41.430201
+],
+[
+-8.29348,
+41.429989
+],
+[
+-8.293724,
+41.428668
+],
+[
+-8.294044,
+41.427779
+],
+[
+-8.294115,
+41.427207
+],
+[
+-8.294213,
+41.427138
+],
+[
+-8.294233,
+41.426637
+],
+[
+-8.294434,
+41.426354
+],
+[
+-8.294468,
+41.425531
+],
+[
+-8.294282,
+41.425419
+],
+[
+-8.294255,
+41.424916
+],
+[
+-8.29519,
+41.424113
+],
+[
+-8.295293,
+41.4239
+],
+[
+-8.295265,
+41.423434
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "circular",
+"corridor": "Ligação Parque da Cidade – Circular urbana",
+"kind": "nova",
+"main": true,
+"length_m": 708,
+"share_on_existing_road": 0
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.270367,
+41.448317
+],
+[
+-8.270308,
+41.448602
+],
+[
+-8.270485,
+41.448929
+],
+[
+-8.270457,
+41.44961
+],
+[
+-8.268504,
+41.450927
+],
+[
+-8.268449,
+41.451105
+],
+[
+-8.270389,
+41.452476
+],
+[
+-8.270912,
+41.452488
+],
+[
+-8.271143,
+41.452637
+],
+[
+-8.271523,
+41.452646
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "circular",
+"corridor": "Ligação Parque da Cidade – Circular urbana",
+"kind": "nova",
+"main": true,
+"length_m": 404,
+"share_on_existing_road": 0
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.271523,
+41.452646
+],
+[
+-8.271094,
+41.452672
+],
+[
+-8.271186,
+41.455112
+],
+[
+-8.271358,
+41.455546
+],
+[
+-8.271294,
+41.455975
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
@@ -48,8 +384,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 101,
 "share_on_existing_road": 0.0
@@ -106,33 +442,6 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
-"kind": "nova",
-"length_m": 74,
-"share_on_existing_road": 0.5
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.271426,
-41.456229
-],
-[
--8.271294,
-41.455975
-],
-[
--8.271357,
-41.455582
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "existente",
@@ -164,8 +473,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 91,
 "share_on_existing_road": 0.2
@@ -187,8 +496,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 176,
 "share_on_existing_road": 0.0
@@ -268,49 +577,6 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
-"kind": "nova",
-"length_m": 458,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.269048,
-41.451585
-],
-[
--8.268494,
-41.451178
-],
-[
--8.268454,
-41.450998
-],
-[
--8.270457,
-41.44961
-],
-[
--8.270485,
-41.448929
-],
-[
--8.270308,
-41.448602
-],
-[
--8.27032,
-41.448316
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "existente",
@@ -361,8 +627,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 75,
 "share_on_existing_road": 0.0
@@ -408,65 +674,6 @@
 [
 -8.294457,
 41.457618
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "ecovia",
-"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
-"kind": "nova",
-"length_m": 696,
-"share_on_existing_road": 0.32
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.274934,
-41.445805
-],
-[
--8.276035,
-41.445579
-],
-[
--8.277431,
-41.445145
-],
-[
--8.278196,
-41.445019
-],
-[
--8.278918,
-41.444785
-],
-[
--8.279356,
-41.444508
-],
-[
--8.279654,
-41.444192
-],
-[
--8.279725,
-41.44362
-],
-[
--8.279692,
-41.443261
-],
-[
--8.279256,
-41.442283
-],
-[
--8.279222,
-41.441959
 ]
 ]
 }
@@ -559,8 +766,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 89,
 "share_on_existing_road": 0.11
@@ -663,8 +870,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 118,
 "share_on_existing_road": 0.17
@@ -686,8 +893,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 105,
 "share_on_existing_road": 0.0
@@ -821,45 +1028,6 @@
 {
 "type": "Feature",
 "properties": {
-"group": "ecovia",
-"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
-"kind": "nova",
-"length_m": 334,
-"share_on_existing_road": 0.53
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.28302,
-41.439644
-],
-[
--8.283594,
-41.43955
-],
-[
--8.285592,
-41.439488
-],
-[
--8.285928,
-41.439389
-],
-[
--8.28632,
-41.439111
-],
-[
--8.286524,
-41.438757
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
@@ -891,37 +1059,6 @@
 {
 "type": "Feature",
 "properties": {
-"group": "ecovia",
-"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
-"kind": "nova",
-"length_m": 117,
-"share_on_existing_road": 0.55
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.286793,
-41.439157
-],
-[
--8.287331,
-41.438775
-],
-[
--8.287197,
-41.438557
-],
-[
--8.286868,
-41.438478
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
 "group": "urgezes",
 "corridor": "Ligações Centro cidade – Urgezes",
 "kind": "nova",
@@ -942,33 +1079,6 @@
 [
 -8.301084,
 41.433462
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
-"kind": "nova",
-"length_m": 176,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.270817,
-41.452486
-],
-[
--8.270389,
-41.452476
-],
-[
--8.269141,
-41.451623
 ]
 ]
 }
@@ -1065,8 +1175,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "existente",
 "length_m": 214,
 "share_on_existing_road": 1.0
@@ -1165,8 +1275,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 73,
 "share_on_existing_road": 0.0
@@ -1254,39 +1364,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 181,
-"share_on_existing_road": 0.06
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.29383,
-41.428384
-],
-[
--8.293652,
-41.429276
-],
-[
--8.293498,
-41.42956
-],
-[
--8.29348,
-41.429989
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 136,
 "share_on_existing_road": 0.08
@@ -1316,8 +1395,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 192,
 "share_on_existing_road": 0.0
@@ -1584,8 +1663,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 60,
 "share_on_existing_road": 0.33
@@ -1607,74 +1686,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "ecovia",
-"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
-"kind": "nova",
-"length_m": 385,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.282678,
-41.439888
-],
-[
--8.281842,
-41.440585
-],
-[
--8.279778,
-41.441112
-],
-[
--8.279332,
-41.441567
-],
-[
--8.279224,
-41.441888
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 195,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.292636,
-41.433268
-],
-[
--8.2926,
-41.432981
-],
-[
--8.292697,
-41.432911
-],
-[
--8.29299,
-41.431556
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "existente",
 "length_m": 76,
 "share_on_existing_road": 1.0
@@ -1824,62 +1837,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
-"kind": "nova",
-"length_m": 324,
-"share_on_existing_road": 0.58
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.271143,
-41.452637
-],
-[
--8.271186,
-41.455112
-],
-[
--8.271358,
-41.455546
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "ecovia",
-"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
-"kind": "nova",
-"length_m": 136,
-"share_on_existing_road": 0.36
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.292633,
-41.43334
-],
-[
--8.292526,
-41.433624
-],
-[
--8.292584,
-41.434558
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 224,
 "share_on_existing_road": 0.0
@@ -1924,35 +1883,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 73,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.294355,
-41.424775
-],
-[
--8.294255,
-41.424916
-],
-[
--8.294282,
-41.425419
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 79,
 "share_on_existing_road": 0.38
@@ -2001,43 +1933,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "ecovia",
-"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
-"kind": "nova",
-"length_m": 203,
-"share_on_existing_road": 0.37
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.279067,
-41.443426
-],
-[
--8.278754,
-41.442952
-],
-[
--8.278645,
-41.442125
-],
-[
--8.278889,
-41.441952
-],
-[
--8.279176,
-41.441922
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 80,
 "share_on_existing_road": 0.25
@@ -2056,52 +1953,6 @@
 [
 -8.276605,
 41.456204
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 71,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.29465,
-41.424531
-],
-[
--8.295193,
-41.424041
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "existente",
-"length_m": 52,
-"share_on_existing_road": 0.83
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.295312,
-41.423435
-],
-[
--8.295293,
-41.4239
 ]
 ]
 }
@@ -2132,31 +1983,8 @@
 {
 "type": "Feature",
 "properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 91,
-"share_on_existing_road": 0.1
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.294468,
-41.425531
-],
-[
--8.294434,
-41.426354
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "circular",
-"corridor": "Ligação Parque da Cidade – Circular urbana",
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
 "kind": "nova",
 "length_m": 129,
 "share_on_existing_road": 0.38
@@ -2295,115 +2123,6 @@
 [
 -8.302785,
 41.454905
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "ecovia",
-"corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
-"kind": "nova",
-"length_m": 700,
-"share_on_existing_road": 0.15
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.292535,
-41.434593
-],
-[
--8.291388,
-41.434746
-],
-[
--8.291147,
-41.434848
-],
-[
--8.290606,
-41.435301
-],
-[
--8.290387,
-41.436013
-],
-[
--8.290081,
-41.436544
-],
-[
--8.289401,
-41.436923
-],
-[
--8.287869,
-41.43721
-],
-[
--8.287377,
-41.437629
-],
-[
--8.286868,
-41.438478
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 141,
-"share_on_existing_road": 0.2
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.293044,
-41.431378
-],
-[
--8.29338,
-41.43013
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 135,
-"share_on_existing_road": 0.54
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.294233,
-41.426637
-],
-[
--8.294213,
-41.427138
-],
-[
--8.294115,
-41.427207
-],
-[
--8.293995,
-41.427814
 ]
 ]
 }
