@@ -99,6 +99,7 @@ $(foreach s,$(SCENARIOS),$(foreach k,$(SEEDS),$(eval $(call RUN,$(s),$(k)))))
 
 study: $(foreach s,$(SCENARIOS),$(foreach k,$(SEEDS),out/$(s)/seed$(k)/tripinfo.xml))
 	$(PY) scripts/export_web.py out web
+	$(PY) scripts/local.py out web/local.json
 
 run: out/$(SCEN)/seed$(SEED)/tripinfo.xml
 
