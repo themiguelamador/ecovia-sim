@@ -31,6 +31,12 @@ sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
 import sumolib  # noqa: E402
 
 SNAP_M, MATCH_M, CONNECT_M = 60, 25, 250
+MAINLINE = {"highway.trunk", "highway.motorway"}  # never join these at grade: use a ramp or local road
+
+
+def joinable(n):
+    """a junction a new road may connect to: not on a trunk/motorway main carriageway"""
+    return not any(e.getType().split("|")[0] in MAINLINE for e in n.getIncoming() + n.getOutgoing())
 
 
 def seg_dist(p, a, b):
@@ -78,7 +84,7 @@ def build(net, features):
         for nid, nx, ny in new_nodes:
             if math.hypot(x - nx, y - ny) <= SNAP_M:
                 return nid
-        best = min(net.getNodes(), key=lambda n: math.dist(n.getCoord(), (x, y)))
+        best = min((n for n in net.getNodes() if joinable(n)), key=lambda n: math.dist(n.getCoord(), (x, y)))
         if math.dist(best.getCoord(), (x, y)) <= SNAP_M:
             return best.getID()
         nid = f"scn{len(new_nodes)}"
@@ -127,9 +133,11 @@ def build(net, features):
     for nid, x, y in list(new_nodes):
         if degree.get(nid) != 1:
             continue
-        best = min(net.getNodes(), key=lambda n: math.dist(n.getCoord(), (x, y)))
+        best = min((n for n in net.getNodes() if joinable(n)), key=lambda n: math.dist(n.getCoord(), (x, y)))
         if math.dist(best.getCoord(), (x, y)) > CONNECT_M:
+            print(f"WARNING loose end {nid}: no joinable junction within {CONNECT_M} m")
             continue
+        print(f"assumed connector {nid}: {math.dist(best.getCoord(), (x, y)):.0f} m to {best.getID()}")
         bx, by = best.getCoord()
         attrs = 'numLanes="1" speed="13.89" priority="9" allow="passenger bus truck delivery emergency" name="Ligação à rua mais próxima (assumida)"'
         edges.append(f'  <edge id="scnc_{nid}" from="{nid}" to="{best.getID()}" {attrs}/>')

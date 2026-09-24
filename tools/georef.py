@@ -60,21 +60,54 @@ GROUPS = [
 # waypoints (start, junctions on the way, end); each leg becomes one road, so the road only
 # connects to the network at the waypoints. Tracing fragments along them are dropped.
 MAIN_ROADS = [
+    # --- the three links named in the image
     ("ecovia", "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
      [(585, 682), (704, 561), (948, 358)]),     # D. João IV roundabout -> mid roundabout -> Parque da Cidade
     ("urgezes_main", "Ligação Av. D. João IV – Urgezes",
-     [(585, 682), (540, 995)]),                 # same roundabout, straight south to Urgezes
+     [(585, 682), (565, 858), (560, 955), (540, 995)]),  # straight south; junction at (565, 858), small roundabout at (560, 955)
     ("circular", "Ligação Parque da Cidade – Circular urbana",
      [(1043, 285), (1015, 165), (1017, 72)]),   # Parque da Cidade -> roundabout -> Circular interchange
+    # --- other links to Urgezes that can be read in the image
+    ("urgezes", "Ligações Centro cidade – Urgezes",
+     [(500, 772), (507, 745), (545, 768), (585, 682)]),   # V-shaped link west of the D. João IV roundabout
+    ("urgezes", "Ligações Centro cidade – Urgezes",
+     [(617, 818), (565, 858)]),                 # diagonal from an existing junction, joining the main Urgezes link
+    ("urgezes", "Ligações Centro cidade – Urgezes",
+     [(565, 858), (545, 925), (520, 950)]),     # western branch from that junction
+    ("urgezes", "Ligações Centro cidade – Urgezes",
+     [(455, 645), (408, 665), (405, 860)]),     # road beside the railway, down to its roundabout
+    ("urgezes", "Ligações Centro cidade – Urgezes",
+     [(405, 860), (370, 905), (366, 950), (395, 985)]),   # from that roundabout, curving south
+    ("urgezes", "Ligações Centro cidade – Urgezes",
+     [(405, 860), (452, 862)]),                 # from that roundabout east to the existing street
+    # --- other proposed roads readable in the image
+    ("outras", "Outras vias propostas no PDM",
+     [(52, 882), (100, 925), (140, 965), (245, 953), (300, 975), (360, 1015), (400, 1023)]),  # long south-west road
+    ("outras", "Outras vias propostas no PDM",
+     [(278, 787), (292, 905), (300, 975)]),     # its north branch, joining it at (300, 975)
+    ("outras", "Outras vias propostas no PDM",
+     [(322, 125), (355, 120), (358, 55), (375, 50)]),     # L-shaped link, north-west
+    ("outras", "Outras vias propostas no PDM",
+     [(420, 302), (452, 240), (470, 200), (545, 162), (625, 93)]),  # northern diagonal
+    ("outras", "Outras vias propostas no PDM",
+     [(770, 418), (780, 470), (760, 500)]),     # short link at Costa
 ]
+# Red marks NOT modelled (ambiguous in the image): pieces cut by the image border (top, x~515-590;
+# top right x~1410), the ramps and loops of the Circular interchange and its east branch
+# (x~900-1180, y<230), short marks west of the stadium (x<160, y~480-580), and the ladder of
+# short links beside the railway road. They are listed on the website.
+EXISTING_M = 25       # metres: a point this close to an OSM road is "on" it
 # where the drawn line stops short of the junction it obviously ends on, extend the main road
 # (last leg) straight to that junction: lon/lat of the junction.
 EXTEND_TO = {
-    "ecovia": (-8.27408, 41.44611),  # roundabout of Av. Rio de Janeiro (same end as the site's reconstruction)
+    "ecovia": {"end": (-8.27408, 41.44611)},    # roundabout of Av. Rio de Janeiro (same end as the site's reconstruction)
+    "circular": {
+        "start": (-8.27139, 41.44843),           # Travessa Rio de Janeiro, Parque da Cidade side
+        "end": (-8.27392, 41.45453),             # local side of the existing EN101 interchange, which the PDM
+    },                                           # redraws (red loops) to take this link; never the main carriageway
 }
-# groups represented only by their main road; their other traced pieces become "outras"
-MAIN_ONLY = {"ecovia": False, "circular": True}  # False = drop the pieces, True = keep them as "outras"
-EXISTING_M, EXISTING_SHARE = 25, 0.7   # "existente" if >=70% of the segment is within 25 m of a road
+NAMED = {"ecovia", "circular", "urgezes_main"}
+EXISTING_MAX = 0.5   # a main road running along existing streets for more than half its length is an upgrade, not a new road
 DRIVABLE = {"motorway", "trunk", "primary", "secondary", "tertiary", "unclassified", "residential",
             "living_street", "motorway_link", "trunk_link", "primary_link", "secondary_link", "tertiary_link"}
 
@@ -118,7 +151,7 @@ def skeleton(mask):
     return set(zip(*np.nonzero(skeletonize(closing(mask, disk(2))))))
 
 
-def path_between(pts, a, b, gap=15, jump_cost=3.0):
+def path_between(pts, a, b, gap=25, jump_cost=3.0):
     """cheapest path over skeleton pixels between the pixels nearest to a and b (x, y).
     The drawn line has small breaks, so hops of up to `gap` px are allowed, costing
     `jump_cost` times their length (the path follows the line wherever it can)."""
@@ -234,39 +267,33 @@ if __name__ == "__main__":
     near_road = lambda q: any(np.hypot(*(np.array(c) - q).T).min() <= EXISTING_M
                               for dx in (-1, 0, 1) for dy in (-1, 0, 1)
                               for c in [cell.get((int(q[0] // EXISTING_M) + dx, int(q[1] // EXISTING_M) + dy))] if c)
-    feats, mask = [], red_mask(im)
+    feats, mask, mains = [], red_mask(im), []
     sk, main_px = skeleton(mask), []
-    for key, name, wps in MAIN_ROADS:
+    for r, (key, name, wps) in enumerate(MAIN_ROADS):
         for j, (a, b) in enumerate(zip(wps, wps[1:])):
             leg = path_between(sk, a, b)
             leg[0], leg[-1] = a, b  # legs meet exactly at the waypoints, so they snap together
             main_px.append(leg)
             m = px_to_m(T, rdp(leg, 1.5))
-            if key in EXTEND_TO and j == len(wps) - 2:
-                m = np.vstack([m, to_m([EXTEND_TO[key]])])
-            feats.append({"type": "Feature", "properties": {
-                "group": key, "corridor": name, "kind": "nova", "main": True,
-                "length_m": round(float(np.linalg.norm(np.diff(m, axis=0), axis=1).sum())), "share_on_existing_road": 0},
-                "geometry": {"type": "LineString", "coordinates": to_lonlat(m).round(6).tolist()}})
-    main_all = np.vstack(main_px)
-    for line in trace(mask):
-        # fragments running along a main road are replaced by it
-        if np.mean(np.sqrt(((line[:, None, :] - main_all[None]) ** 2).sum(-1)).min(1) < 6) > 0.6:
-            continue
-        simple = rdp(line, 1.5)
-        mid = line[len(line) // 2]
-        key, name, _ = next(g for g in GROUPS if g[2][0] <= mid[0] <= g[2][2] and g[2][1] <= mid[1] <= g[2][3])
-        if key in MAIN_ONLY:
-            if not MAIN_ONLY[key]:
-                continue  # the Ecovia road is only the main path above
-            key, name = "outras", "Outras vias propostas no PDM"  # ramps and branches around the Circular link
-        m = px_to_m(T, simple)
-        samples = densify(m, 10)
-        share = float(np.mean([near_road(q) for q in samples]))
-        length = float(np.linalg.norm(np.diff(m, axis=0), axis=1).sum())
+            ext = EXTEND_TO.get(key, {})
+            if "start" in ext and j == 0:
+                m = np.vstack([to_m([ext["start"]]), m])
+            if "end" in ext and j == len(wps) - 2:
+                m = np.vstack([m, to_m([ext["end"]])])
+            mains.append((key, name, m, r, j))
+    # new road vs upgrade is decided for the whole road (all its legs), so a road is never cut
+    # in the middle; the three links named in the image are new roads by definition
+    share, length = {}, {}
+    for key, name, m, r, j in mains:
+        L = float(np.linalg.norm(np.diff(m, axis=0), axis=1).sum())
+        on = float(np.mean([near_road(q) for q in densify(m, 10)]))
+        share[r], length[r] = share.get(r, 0) + on * L, length.get(r, 0) + L
+    for key, name, m, r, j in mains:
+        road_share = share[r] / length[r]
+        kind = "nova" if key in NAMED or road_share <= EXISTING_MAX else "existente"
         feats.append({"type": "Feature", "properties": {
-            "group": key, "corridor": name, "kind": "existente" if share >= EXISTING_SHARE else "nova",
-            "length_m": round(length), "share_on_existing_road": round(share, 2)},
+            "group": key, "corridor": name, "kind": kind, "main": True, "road": r, "share_on_existing_road": round(road_share, 2),
+            "length_m": round(float(np.linalg.norm(np.diff(m, axis=0), axis=1).sum()))},
             "geometry": {"type": "LineString", "coordinates": to_lonlat(m).round(6).tolist()}})
     json.dump({"type": "FeatureCollection", "source": "Imagem das vias propostas no PDM de Guimarães (2026), georreferenciada com tools/georef.py", "features": feats},
               open("data/pdm/tracado.geojson", "w"), ensure_ascii=False, indent=0)

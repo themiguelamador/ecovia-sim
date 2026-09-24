@@ -9,8 +9,9 @@
 "corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
 "kind": "nova",
 "main": true,
-"length_m": 754,
-"share_on_existing_road": 0
+"road": 0,
+"share_on_existing_road": 0.27,
+"length_m": 754
 },
 "geometry": {
 "type": "LineString",
@@ -69,8 +70,9 @@
 "corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
 "kind": "nova",
 "main": true,
-"length_m": 1572,
-"share_on_existing_road": 0
+"road": 0,
+"share_on_existing_road": 0.27,
+"length_m": 1572
 },
 "geometry": {
 "type": "LineString",
@@ -161,8 +163,9 @@
 "corridor": "Ligação Av. D. João IV – Urgezes",
 "kind": "nova",
 "main": true,
-"length_m": 1301,
-"share_on_existing_road": 0
+"road": 1,
+"share_on_existing_road": 0.22,
+"length_m": 715
 },
 "geometry": {
 "type": "LineString",
@@ -180,8 +183,8 @@
 41.432981
 ],
 [
--8.292921,
-41.432092
+-8.292697,
+41.432911
 ],
 [
 -8.292939,
@@ -200,16 +203,37 @@
 41.429989
 ],
 [
--8.293724,
-41.428668
+-8.293498,
+41.42956
 ],
 [
--8.294044,
-41.427779
+-8.29388,
+41.428313
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes_main",
+"corridor": "Ligação Av. D. João IV – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 1,
+"share_on_existing_road": 0.22,
+"length_m": 399
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.29388,
+41.428313
 ],
 [
--8.294115,
-41.427207
+-8.29406,
+41.427385
 ],
 [
 -8.294213,
@@ -232,8 +256,29 @@
 41.425419
 ],
 [
--8.294255,
-41.424916
+-8.294258,
+41.424845
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes_main",
+"corridor": "Ligação Av. D. João IV – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 1,
+"share_on_existing_road": 0.22,
+"length_m": 189
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.294258,
+41.424845
 ],
 [
 -8.29519,
@@ -257,12 +302,17 @@
 "corridor": "Ligação Parque da Cidade – Circular urbana",
 "kind": "nova",
 "main": true,
-"length_m": 708,
-"share_on_existing_road": 0
+"road": 2,
+"share_on_existing_road": 0.37,
+"length_m": 794
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
+[
+-8.27139,
+41.44843
+],
 [
 -8.270367,
 41.448317
@@ -313,8 +363,9 @@
 "corridor": "Ligação Parque da Cidade – Circular urbana",
 "kind": "nova",
 "main": true,
-"length_m": 404,
-"share_on_existing_road": 0
+"road": 2,
+"share_on_existing_road": 0.37,
+"length_m": 675
 },
 "geometry": {
 "type": "LineString",
@@ -338,76 +389,10 @@
 [
 -8.271294,
 41.455975
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 436,
-"share_on_existing_road": 0.43
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.296217,
-41.452854
 ],
 [
--8.297124,
-41.452731
-],
-[
--8.29781,
-41.452209
-],
-[
--8.298017,
-41.451784
-],
-[
--8.298942,
-41.451232
-],
-[
--8.298997,
-41.451054
-],
-[
--8.298318,
-41.450213
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 101,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.274798,
-41.457418
-],
-[
--8.274555,
-41.457555
-],
-[
--8.273653,
-41.457535
+-8.27392,
+41.45453
 ]
 ]
 }
@@ -417,16 +402,252 @@
 "properties": {
 "group": "urgezes",
 "corridor": "Ligações Centro cidade – Urgezes",
-"kind": "existente",
-"length_m": 208,
-"share_on_existing_road": 1.0
+"kind": "nova",
+"main": true,
+"road": 3,
+"share_on_existing_road": 0.05,
+"length_m": 164
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.298745,
-41.436097
+-8.296841,
+41.431465
+],
+[
+-8.296692,
+41.431641
+],
+[
+-8.296866,
+41.432039
+],
+[
+-8.29685,
+41.432433
+],
+[
+-8.296654,
+41.432572
+],
+[
+-8.296512,
+41.432569
+],
+[
+-8.29647,
+41.432424
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 3,
+"share_on_existing_road": 0.05,
+"length_m": 227
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.29647,
+41.432424
+],
+[
+-8.296417,
+41.432566
+],
+[
+-8.295657,
+41.432549
+],
+[
+-8.294598,
+41.431736
+],
+[
+-8.2947,
+41.431559
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 3,
+"share_on_existing_road": 0.05,
+"length_m": 412
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.2947,
+41.431559
+],
+[
+-8.293972,
+41.431937
+],
+[
+-8.29307,
+41.433099
+],
+[
+-8.292633,
+41.43334
+],
+[
+-8.292513,
+41.433947
+],
+[
+-8.292539,
+41.434485
+],
+[
+-8.292677,
+41.434596
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 4,
+"share_on_existing_road": 0.07,
+"length_m": 269
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.291355,
+41.42969
+],
+[
+-8.292534,
+41.428713
+],
+[
+-8.293499,
+41.428341
+],
+[
+-8.29388,
+41.428313
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 5,
+"share_on_existing_road": 0.26,
+"length_m": 312
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.29388,
+41.428313
+],
+[
+-8.293982,
+41.428137
+],
+[
+-8.294267,
+41.428143
+],
+[
+-8.294658,
+41.427865
+],
+[
+-8.294887,
+41.426903
+],
+[
+-8.295034,
+41.426798
+],
+[
+-8.295053,
+41.426333
+],
+[
+-8.294926,
+41.425935
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 5,
+"share_on_existing_road": 0.26,
+"length_m": 140
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.294926,
+41.425935
+],
+[
+-8.296149,
+41.425067
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "nova",
+"main": true,
+"road": 6,
+"share_on_existing_road": 0.32,
+"length_m": 214
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.298794,
+41.436063
 ],
 [
 -8.299123,
@@ -437,112 +658,12 @@
 41.436016
 ],
 [
--8.301003,
-41.435468
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 244,
-"share_on_existing_road": 0.92
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.310065,
-41.453423
+-8.300807,
+41.435607
 ],
 [
--8.309756,
-41.454025
-],
-[
--8.309684,
-41.454633
-],
-[
--8.310268,
-41.455471
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 91,
-"share_on_existing_road": 0.2
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.270809,
-41.456215
-],
-[
--8.269719,
-41.456154
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 176,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.269046,
-41.451621
-],
-[
--8.268014,
-41.452494
-],
-[
--8.267808,
-41.452883
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 55,
-"share_on_existing_road": 1.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.311664,
-41.457367
-],
-[
--8.311644,
-41.457869
+-8.301053,
+41.435398
 ]
 ]
 }
@@ -553,467 +674,18 @@
 "group": "urgezes",
 "corridor": "Ligações Centro cidade – Urgezes",
 "kind": "nova",
-"length_m": 113,
-"share_on_existing_road": 0.0
+"main": true,
+"road": 6,
+"share_on_existing_road": 0.32,
+"length_m": 791
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.300251,
-41.430539
+-8.301053,
+41.435398
 ],
-[
--8.300234,
-41.430969
-],
-[
--8.300372,
-41.43108
-],
-[
--8.30045,
-41.431512
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 157,
-"share_on_existing_road": 1.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.312641,
-41.424872
-],
-[
--8.313876,
-41.424865
-],
-[
--8.314387,
-41.425163
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 112,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.314614,
-41.425419
-],
-[
--8.315534,
-41.426157
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 75,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.252532,
-41.45472
-],
-[
--8.252274,
-41.454068
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 128,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.293026,
-41.457764
-],
-[
--8.293653,
-41.457528
-],
-[
--8.294318,
-41.457543
-],
-[
--8.294457,
-41.457618
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 55,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.303559,
-41.422728
-],
-[
--8.302894,
-41.422712
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 239,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.301395,
-41.429275
-],
-[
--8.30137,
-41.431067
-],
-[
--8.301261,
-41.431423
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 165,
-"share_on_existing_road": 0.13
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.301349,
-41.429238
-],
-[
--8.301017,
-41.42923
-],
-[
--8.300549,
-41.42904
-],
-[
--8.300181,
-41.428745
-],
-[
--8.300151,
-41.428314
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 89,
-"share_on_existing_road": 0.11
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.265497,
-41.452472
-],
-[
--8.264562,
-41.452092
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 199,
-"share_on_existing_road": 0.65
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.31153,
-41.457149
-],
-[
--8.311033,
-41.456528
-],
-[
--8.310455,
-41.455547
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 73,
-"share_on_existing_road": 0.5
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.317563,
-41.427674
-],
-[
--8.317747,
-41.427822
-],
-[
--8.318311,
-41.427978
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 83,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.315459,
-41.440998
-],
-[
--8.315447,
-41.441285
-],
-[
--8.315099,
-41.441671
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 118,
-"share_on_existing_road": 0.17
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.270079,
-41.450748
-],
-[
--8.269144,
-41.451551
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 105,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.27569,
-41.456506
-],
-[
--8.275529,
-41.456968
-],
-[
--8.275181,
-41.457355
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 85,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.30113,
-41.433499
-],
-[
--8.301259,
-41.433825
-],
-[
--8.301242,
-41.434255
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 239,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.306728,
-41.426601
-],
-[
--8.306643,
-41.425165
-],
-[
--8.306472,
-41.424695
-],
-[
--8.306623,
-41.424483
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 222,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.30118,
-41.433429
-],
-[
--8.301261,
-41.431423
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "existente",
-"length_m": 73,
-"share_on_existing_road": 0.88
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
 [
 -8.30083,
 41.435034
@@ -1025,87 +697,30 @@
 [
 -8.301233,
 41.43447
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 263,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.306625,
-41.424447
 ],
 [
--8.305751,
-41.423746
+-8.301259,
+41.433825
 ],
 [
--8.304451,
-41.422999
+-8.301127,
+41.433571
 ],
 [
--8.304213,
-41.422994
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 96,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.300447,
-41.432766
+-8.301229,
+41.433394
 ],
 [
--8.300805,
-41.433312
+-8.301173,
+41.432425
 ],
 [
--8.301084,
-41.433462
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 71,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.301855,
-41.422581
+-8.30137,
+41.431067
 ],
 [
--8.302709,
-41.422601
+-8.301477,
+41.428416
 ]
 ]
 }
@@ -1116,496 +731,18 @@
 "group": "urgezes",
 "corridor": "Ligações Centro cidade – Urgezes",
 "kind": "existente",
-"length_m": 91,
-"share_on_existing_road": 0.8
+"main": true,
+"road": 7,
+"share_on_existing_road": 0.61,
+"length_m": 254
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.302891,
-41.42515
+-8.301477,
+41.428416
 ],
-[
--8.303393,
-41.425664
-],
-[
--8.303433,
-41.425844
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 399,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.307486,
-41.430203
-],
-[
--8.307581,
-41.429022
-],
-[
--8.307444,
-41.428876
-],
-[
--8.307466,
-41.428339
-],
-[
--8.306895,
-41.427178
-],
-[
--8.306866,
-41.426711
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 214,
-"share_on_existing_road": 1.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.271935,
-41.45538
-],
-[
--8.274499,
-41.455403
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 95,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.30148,
-41.428345
-],
-[
--8.301398,
-41.429203
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 83,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.316233,
-41.427679
-],
-[
--8.31723,
-41.427702
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 263,
-"share_on_existing_road": 0.08
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.291353,
-41.429725
-],
-[
--8.292534,
-41.428713
-],
-[
--8.293499,
-41.428341
-],
-[
--8.293784,
-41.428347
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 73,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.275012,
-41.457996
-],
-[
--8.274971,
-41.457852
-],
-[
--8.275117,
-41.457748
-],
-[
--8.275179,
-41.45739
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 471,
-"share_on_existing_road": 0.74
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.294442,
-41.453279
-],
-[
--8.292729,
-41.454531
-],
-[
--8.291053,
-41.454851
-],
-[
--8.290173,
-41.455476
-],
-[
--8.289884,
-41.455577
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 143,
-"share_on_existing_road": 0.13
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.318453,
-41.442143
-],
-[
--8.319769,
-41.441313
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 136,
-"share_on_existing_road": 0.08
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.267808,
-41.452883
-],
-[
--8.268039,
-41.453032
-],
-[
--8.268609,
-41.453045
-],
-[
--8.269213,
-41.453381
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 192,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.267808,
-41.452883
-],
-[
--8.266951,
-41.452935
-],
-[
--8.266242,
-41.452847
-],
-[
--8.26573,
-41.452584
-],
-[
--8.265633,
-41.452618
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 129,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.302831,
-41.454942
-],
-[
--8.304209,
-41.454938
-],
-[
--8.304354,
-41.454869
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 617,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.292682,
-41.433305
-],
-[
--8.292873,
-41.433274
-],
-[
--8.29307,
-41.433099
-],
-[
--8.293972,
-41.431937
-],
-[
--8.294362,
-41.431695
-],
-[
--8.294692,
-41.431738
-],
-[
--8.295657,
-41.432549
-],
-[
--8.296654,
-41.432572
-],
-[
--8.29685,
-41.432433
-],
-[
--8.296866,
-41.432039
-],
-[
--8.296611,
-41.43128
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 55,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.300356,
-41.432657
-],
-[
--8.300376,
-41.432155
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 86,
-"share_on_existing_road": 0.62
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.296071,
-41.452922
-],
-[
--8.295544,
-41.453054
-],
-[
--8.295069,
-41.453043
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "existente",
-"length_m": 113,
-"share_on_existing_road": 1.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.302304,
-41.434996
-],
-[
--8.302289,
-41.43539
-],
-[
--8.302598,
-41.435971
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 334,
-"share_on_existing_road": 0.5
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
 [
 -8.301481,
 41.428309
@@ -1623,12 +760,127 @@
 41.427131
 ],
 [
+-8.303389,
+41.426954
+],
+[
+-8.303203,
+41.426842
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "existente",
+"main": true,
+"road": 7,
+"share_on_existing_road": 0.61,
+"length_m": 226
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.303203,
+41.426842
+],
+[
+-8.303439,
+41.426884
+],
+[
 -8.303588,
 41.426708
 ],
 [
 -8.30357,
 41.42599
+],
+[
+-8.303164,
+41.425443
+],
+[
+-8.303458,
+41.425235
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "existente",
+"main": true,
+"road": 7,
+"share_on_existing_road": 0.61,
+"length_m": 225
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.303458,
+41.425235
+],
+[
+-8.303072,
+41.42537
+],
+[
+-8.302891,
+41.42515
+],
+[
+-8.302195,
+41.42474
+],
+[
+-8.302132,
+41.42395
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "urgezes",
+"corridor": "Ligações Centro cidade – Urgezes",
+"kind": "existente",
+"main": true,
+"road": 8,
+"share_on_existing_road": 0.75,
+"length_m": 207
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.301477,
+41.428416
+],
+[
+-8.301434,
+41.428308
+],
+[
+-8.300057,
+41.428276
+],
+[
+-8.299446,
+41.428119
+],
+[
+-8.299249,
+41.428293
 ]
 ]
 }
@@ -1639,12 +891,96 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
-"length_m": 272,
-"share_on_existing_road": 0.31
+"main": true,
+"road": 9,
+"share_on_existing_road": 0.21,
+"length_m": 261
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
+[
+-8.318262,
+41.428013
+],
+[
+-8.317937,
+41.427826
+],
+[
+-8.317747,
+41.427822
+],
+[
+-8.317016,
+41.427124
+],
+[
+-8.316046,
+41.42642
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "nova",
+"main": true,
+"road": 9,
+"share_on_existing_road": 0.21,
+"length_m": 227
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.316046,
+41.42642
+],
+[
+-8.315487,
+41.426156
+],
+[
+-8.314659,
+41.425492
+],
+[
+-8.314206,
+41.424944
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "nova",
+"main": true,
+"road": 9,
+"share_on_existing_road": 0.21,
+"length_m": 434
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.314206,
+41.424944
+],
+[
+-8.312974,
+41.424844
+],
+[
+-8.312641,
+41.424872
+],
 [
 -8.312494,
 41.424976
@@ -1660,6 +996,10 @@
 [
 -8.309304,
 41.425154
+],
+[
+-8.309205,
+41.425259
 ]
 ]
 }
@@ -1670,366 +1010,17 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
-"length_m": 60,
-"share_on_existing_road": 0.33
+"main": true,
+"road": 9,
+"share_on_existing_road": 0.21,
+"length_m": 244
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.252118,
-41.453204
-],
-[
--8.252144,
-41.453743
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 76,
-"share_on_existing_road": 1.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.274731,
-41.455552
-],
-[
--8.275013,
-41.45563
-],
-[
--8.275378,
-41.455997
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 112,
-"share_on_existing_road": 0.83
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.304644,
-41.435874
-],
-[
--8.30459,
-41.436052
-],
-[
--8.30489,
-41.436848
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 281,
-"share_on_existing_road": 0.42
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.294874,
-41.426042
-],
-[
--8.295053,
-41.426333
-],
-[
--8.295034,
-41.426798
-],
-[
--8.294887,
-41.426903
-],
-[
--8.294658,
-41.427865
-],
-[
--8.294267,
-41.428143
-],
-[
--8.293982,
-41.428137
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 65,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.300497,
-41.431513
-],
-[
--8.301261,
-41.431423
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 333,
-"share_on_existing_road": 0.16
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.301782,
-41.457392
-],
-[
--8.30235,
-41.45744
-],
-[
--8.302692,
-41.457197
-],
-[
--8.302782,
-41.454977
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 224,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.273559,
-41.457533
-],
-[
--8.271423,
-41.4563
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 129,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.296196,
-41.425068
-],
-[
--8.295072,
-41.425867
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 79,
-"share_on_existing_road": 0.38
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.274152,
-41.45812
-],
-[
--8.273645,
-41.45775
-],
-[
--8.273605,
-41.457569
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 101,
-"share_on_existing_road": 0.73
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.313049,
-41.439509
-],
-[
--8.313975,
-41.438921
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 80,
-"share_on_existing_road": 0.25
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.275739,
-41.456471
-],
-[
--8.276224,
-41.456231
-],
-[
--8.276605,
-41.456204
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "existente",
-"length_m": 55,
-"share_on_existing_road": 1.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.298528,
-41.449716
-],
-[
--8.298272,
-41.450176
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 129,
-"share_on_existing_road": 0.38
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.263764,
-41.450675
-],
-[
--8.264633,
-41.450336
-],
-[
--8.264828,
-41.450198
-],
-[
--8.264742,
-41.44998
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "outras",
-"corridor": "Outras vias propostas no PDM",
-"kind": "nova",
-"length_m": 228,
-"share_on_existing_road": 0.0
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.30911,
-41.425257
+-8.309205,
+41.425259
 ],
 [
 -8.30854,
@@ -2044,8 +1035,12 @@
 41.425087
 ],
 [
--8.306671,
-41.424484
+-8.307135,
+41.424746
+],
+[
+-8.306626,
+41.424411
 ]
 ]
 }
@@ -2056,54 +1051,33 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
-"length_m": 263,
-"share_on_existing_road": 0.24
+"main": true,
+"road": 9,
+"share_on_existing_road": 0.21,
+"length_m": 294
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.295729,
-41.451982
+-8.306626,
+41.424411
 ],
 [
--8.297215,
-41.451658
+-8.305751,
+41.423746
 ],
 [
--8.297508,
-41.45145
+-8.30459,
+41.423074
 ],
 [
--8.297717,
-41.450988
+-8.304075,
+41.422883
 ],
 [
--8.298016,
-41.450637
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"length_m": 103,
-"share_on_existing_road": 0.64
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.301434,
-41.428308
-],
-[
--8.3002,
-41.428279
+-8.303836,
+41.422913
 ]
 ]
 }
@@ -2114,19 +1088,33 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
-"length_m": 63,
-"share_on_existing_road": 0.0
+"main": true,
+"road": 9,
+"share_on_existing_road": 0.21,
+"length_m": 168
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.302808,
-41.454332
+-8.303836,
+41.422913
 ],
 [
--8.302785,
-41.454905
+-8.303559,
+41.422728
+],
+[
+-8.303225,
+41.422756
+],
+[
+-8.302519,
+41.422596
+],
+[
+-8.30195,
+41.422583
 ]
 ]
 }
@@ -2137,23 +1125,41 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
-"length_m": 75,
-"share_on_existing_road": 0.0
+"main": true,
+"road": 10,
+"share_on_existing_road": 0.07,
+"length_m": 481
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.314134,
-41.442044
+-8.307399,
+41.431169
 ],
 [
--8.314281,
-41.441939
+-8.307378,
+41.430523
 ],
 [
--8.314951,
-41.441811
+-8.307581,
+41.429022
+],
+[
+-8.307444,
+41.428876
+],
+[
+-8.307466,
+41.428339
+],
+[
+-8.307024,
+41.427504
+],
+[
+-8.306905,
+41.426927
 ]
 ]
 }
@@ -2164,23 +1170,128 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
-"length_m": 197,
-"share_on_existing_road": 0.0
+"main": true,
+"road": 10,
+"share_on_existing_road": 0.07,
+"length_m": 288
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.317565,
-41.427638
+-8.306905,
+41.426927
 ],
 [
--8.316463,
-41.426681
+-8.306866,
+41.426711
 ],
 [
--8.315905,
-41.426381
+-8.306728,
+41.426601
+],
+[
+-8.306643,
+41.425165
+],
+[
+-8.306472,
+41.424695
+],
+[
+-8.306626,
+41.424411
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "nova",
+"main": true,
+"road": 11,
+"share_on_existing_road": 0.15,
+"length_m": 136
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.304355,
+41.454833
+],
+[
+-8.304209,
+41.454938
+],
+[
+-8.302782,
+41.454977
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "nova",
+"main": true,
+"road": 11,
+"share_on_existing_road": 0.15,
+"length_m": 262
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.302782,
+41.454977
+],
+[
+-8.302692,
+41.457197
+],
+[
+-8.302546,
+41.457302
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "nova",
+"main": true,
+"road": 11,
+"share_on_existing_road": 0.15,
+"length_m": 77
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.302546,
+41.457302
+],
+[
+-8.30235,
+41.45744
+],
+[
+-8.301829,
+41.457393
+],
+[
+-8.301732,
+41.457462
 ]
 ]
 }
@@ -2191,23 +1302,192 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "existente",
-"length_m": 166,
-"share_on_existing_road": 1.0
+"main": true,
+"road": 12,
+"share_on_existing_road": 0.66,
+"length_m": 317
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.299813,
-41.448491
+-8.29996,
+41.448387
+],
+[
+-8.299764,
+41.448526
 ],
 [
 -8.298849,
 41.448827
 ],
 [
--8.298584,
-41.449502
+-8.298736,
+41.449291
+],
+[
+-8.298274,
+41.450141
+],
+[
+-8.298501,
+41.450397
+],
+[
+-8.298351,
+41.450573
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "existente",
+"main": true,
+"road": 12,
+"share_on_existing_road": 0.66,
+"length_m": 269
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.298351,
+41.450573
+],
+[
+-8.29859,
+41.450542
+],
+[
+-8.298993,
+41.451161
+],
+[
+-8.298017,
+41.451784
+],
+[
+-8.297865,
+41.452031
+],
+[
+-8.297439,
+41.451986
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "existente",
+"main": true,
+"road": 12,
+"share_on_existing_road": 0.66,
+"length_m": 438
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.297439,
+41.451986
+],
+[
+-8.297815,
+41.452102
+],
+[
+-8.29781,
+41.452209
+],
+[
+-8.297124,
+41.452731
+],
+[
+-8.295738,
+41.452951
+],
+[
+-8.295544,
+41.453054
+],
+[
+-8.295069,
+41.453043
+],
+[
+-8.294922,
+41.453147
+],
+[
+-8.294638,
+41.45314
+],
+[
+-8.294148,
+41.453488
+],
+[
+-8.293825,
+41.453265
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "existente",
+"main": true,
+"road": 12,
+"share_on_existing_road": 0.66,
+"length_m": 470
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.293825,
+41.453265
+],
+[
+-8.294051,
+41.453557
+],
+[
+-8.292972,
+41.454393
+],
+[
+-8.29244,
+41.454632
+],
+[
+-8.291053,
+41.454851
+],
+[
+-8.290173,
+41.455476
+],
+[
+-8.289933,
+41.455542
+],
+[
+-8.289928,
+41.45565
 ]
 ]
 }
@@ -2218,39 +1498,54 @@
 "group": "outras",
 "corridor": "Outras vias propostas no PDM",
 "kind": "nova",
-"length_m": 319,
-"share_on_existing_road": 0.1
+"main": true,
+"road": 13,
+"share_on_existing_road": 0.09,
+"length_m": 212
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.28334,
-41.443488
-],
-[
--8.28335,
-41.443237
-],
-[
--8.283171,
-41.442982
-],
-[
--8.283184,
-41.44266
+-8.283516,
+41.44385
 ],
 [
 -8.28305,
 41.442442
 ],
 [
--8.283067,
-41.442012
+-8.283116,
+41.441977
+]
+]
+}
+},
+{
+"type": "Feature",
+"properties": {
+"group": "outras",
+"corridor": "Outras vias propostas no PDM",
+"kind": "nova",
+"main": true,
+"road": 13,
+"share_on_existing_road": 0.09,
+"length_m": 146
+},
+"geometry": {
+"type": "LineString",
+"coordinates": [
+[
+-8.283116,
+41.441977
 ],
 [
--8.284202,
-41.440962
+-8.284103,
+41.441068
+],
+[
+-8.284109,
+41.440924
 ]
 ]
 }
