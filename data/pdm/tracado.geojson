@@ -69,7 +69,7 @@
 "corridor": "Ligação D. João IV – Parque da Cidade (sobre a Ecovia)",
 "kind": "nova",
 "main": true,
-"length_m": 1490,
+"length_m": 1572,
 "share_on_existing_road": 0
 },
 "geometry": {
@@ -146,6 +146,10 @@
 [
 -8.274981,
 41.445806
+],
+[
+-8.27408,
+41.44611
 ]
 ]
 }

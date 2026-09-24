@@ -67,6 +67,11 @@ MAIN_ROADS = [
     ("circular", "Ligação Parque da Cidade – Circular urbana",
      [(1043, 285), (1015, 165), (1017, 72)]),   # Parque da Cidade -> roundabout -> Circular interchange
 ]
+# where the drawn line stops short of the junction it obviously ends on, extend the main road
+# (last leg) straight to that junction: lon/lat of the junction.
+EXTEND_TO = {
+    "ecovia": (-8.27408, 41.44611),  # roundabout of Av. Rio de Janeiro (same end as the site's reconstruction)
+}
 # groups represented only by their main road; their other traced pieces become "outras"
 MAIN_ONLY = {"ecovia": False, "circular": True}  # False = drop the pieces, True = keep them as "outras"
 EXISTING_M, EXISTING_SHARE = 25, 0.7   # "existente" if >=70% of the segment is within 25 m of a road
@@ -232,11 +237,13 @@ if __name__ == "__main__":
     feats, mask = [], red_mask(im)
     sk, main_px = skeleton(mask), []
     for key, name, wps in MAIN_ROADS:
-        for a, b in zip(wps, wps[1:]):
+        for j, (a, b) in enumerate(zip(wps, wps[1:])):
             leg = path_between(sk, a, b)
             leg[0], leg[-1] = a, b  # legs meet exactly at the waypoints, so they snap together
             main_px.append(leg)
             m = px_to_m(T, rdp(leg, 1.5))
+            if key in EXTEND_TO and j == len(wps) - 2:
+                m = np.vstack([m, to_m([EXTEND_TO[key]])])
             feats.append({"type": "Feature", "properties": {
                 "group": key, "corridor": name, "kind": "nova", "main": True,
                 "length_m": round(float(np.linalg.norm(np.diff(m, axis=0), axis=1).sum())), "share_on_existing_road": 0},
