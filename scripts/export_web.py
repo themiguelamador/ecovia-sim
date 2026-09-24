@@ -131,9 +131,10 @@ limit = GRIDLOCK_FACTOR * statistics.median(r["teleports"] for r in runs["base"]
 normal = {s: list(runs[s]) for s in scen_ids}
 gridlock = {s: sorted(sd for sd, r in runs[s].items() if r["teleports"] > limit) for s in scen_ids}
 meta_scen = []
-flows = {}
+flows, per_seed = {}, {}
 for s in scen_ids:
-    hourly = [edge_hourly(p) for p in seeds[s] if os.path.basename(p.rstrip("/")) in normal[s]]
+    per_seed[s] = {os.path.basename(p.rstrip("/")): edge_hourly(p) for p in seeds[s] if os.path.basename(p.rstrip("/")) in normal[s]}
+    hourly = list(per_seed[s].values())
     ids = set().union(*hourly)
     mean = {}
     for e in ids:
@@ -177,7 +178,21 @@ for m in meta_scen:
                 per_corridor[e.getName()][1] += e.getLength()
     # daily vehicles per direction on the new roads, length-weighted, by PDM corridor
     m["new_roads"] = [{"corridor": c, "km": round(L / 2000, 2), "veh_day": round(vl / L)} for c, (vl, L) in per_corridor.items()]
-    json.dump({"veh": veh, "speed": spd, "new": new_edges}, open(f"{web}/flows/{s}.json", "w"), separators=(",", ":"))
+    # per street and hour: the paired difference vs base, kept only where its 95% interval
+    # excludes zero (0 otherwise), so the difference map does not paint route-choice noise
+    dsig = []
+    if s != "base":
+        common = sorted(set(per_seed[s]) & set(per_seed["base"]))
+        t = T975.get(len(common), 2.0)
+        for e in keep:
+            row = []
+            for h in range(24):
+                ds = [per_seed[s][k].get(e.getID(), ([0] * 24,))[0][h] - per_seed["base"][k].get(e.getID(), ([0] * 24,))[0][h] for k in common]
+                m = statistics.fmean(ds)
+                half = t * statistics.stdev(ds) / math.sqrt(len(ds)) if len(ds) > 1 else abs(m)
+                row.append(round(m) if abs(m) > half else 0)
+            dsig.append(row)
+    json.dump({"veh": veh, "speed": spd, "new": new_edges, "dsig": dsig}, open(f"{web}/flows/{s}.json", "w"), separators=(",", ":"))
     fcd = f"{out}/{s}/seed1/fcd.xml"
     if os.path.exists(fcd):
         json.dump(anim(fcd), open(f"{web}/anim/{s}.json", "w"), separators=(",", ":"))
