@@ -9,3 +9,5 @@ web_dev/
 resources/
 out_prev/
 web_prev/
+out_*/
+web_*/

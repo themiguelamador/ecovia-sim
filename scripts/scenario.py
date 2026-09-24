@@ -2,7 +2,7 @@
 
 A scenario is a GeoJSON FeatureCollection of LineStrings (draw them on geojson.io).
 Feature properties:
-  action     "add" (default) | "modify" | "remove"
+  action     "add" (default) | "modify" | "remove" | "oneway"
   lanes      lanes per direction           (add: default 1; modify: optional)
   speed_kmh  speed limit                   (add: default 50; modify: optional)
   oneway     true = only in drawing direction (add only)
@@ -11,7 +11,8 @@ Feature properties:
 accurate), or to another added line's end, else they become new junctions. A new junction
 left as a loose end (one road only) is joined by a straight connector to the nearest
 existing junction within 250 m: a planned road ends on a street, not in a field. "modify"/"remove"
-affect every existing road segment lying within 25 m of the line along its whole length.
+affect every existing road segment lying within 25 m of the line along its whole length;
+"oneway" removes the ones among them running against the drawing direction.
 
 A scenario can also pull features from other files, filtered by property:
   "include": [{"file": "../data/pdm/tracado.geojson", "group": ["ecovia"], "kind": "nova"}]
@@ -109,8 +110,11 @@ def build(net, features):
             hits = [e for e in net.getEdges() if near_line(e, line)]
             if not hits:
                 sys.exit(f"feature {i}: no existing road within {MATCH_M} m of the whole line")
+            if action == "oneway":
+                (lx0, ly0), (lx1, ly1) = line[0], line[-1]
+                hits = [e for e in hits if (lambda s: (s[-1][0] - s[0][0]) * (lx1 - lx0) + (s[-1][1] - s[0][1]) * (ly1 - ly0) < 0)(e.getShape())]
             for e in hits:
-                if action == "remove":
+                if action in ("remove", "oneway"):
                     remove.append(e.getID())
                 else:
                     upd = ""

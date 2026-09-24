@@ -1,0 +1,15 @@
+{
+ "type": "FeatureCollection",
+ "description": "Correcções locais à rede do OpenStreetMap, aplicadas à rede base de todos os cenários (scripts/scenario.py). Cada linha desenha-se no sentido permitido.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "oneway",
+    "name": "Rua do Centro",
+    "note": "Sentido único: só se entra a partir da Av. D. João IV (junto à rotunda da estação). Informação local, Set 2026."
+   },
+   "geometry": {"type": "LineString", "coordinates": [[-8.29227, 41.43505], [-8.29199, 41.43499], [-8.29161, 41.43509], [-8.29139, 41.43565], [-8.29104, 41.43655], [-8.29086, 41.43696]]}
+  }
+ ]
+}

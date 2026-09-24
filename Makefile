@@ -46,9 +46,13 @@ out/osm.net.xml: data/gmr.osm.xml.gz
 	  --sidewalks.guess --sidewalks.guess.max-speed 13.9 --walkingareas --opposites.guess \
 	  --output.street-names --no-warnings
 
-out/base.net.xml: out/osm.net.xml data/gmr.osm.xml.gz scripts/crossings.py
+out/crossed.net.xml: out/osm.net.xml data/gmr.osm.xml.gz scripts/crossings.py
 	$(PY) scripts/crossings.py out/osm.net.xml data/gmr.osm.xml.gz out/crossings.edg.xml out/crossings.con.xml
 	$(BIN)/netconvert --sumo-net-file out/osm.net.xml -e out/crossings.edg.xml -x out/crossings.con.xml -o $@ --no-warnings
+
+# local knowledge the OSM data gets wrong (one-way streets, ...): data/corrections.geojson
+out/base.net.xml: out/crossed.net.xml data/corrections.geojson scripts/scenario.py
+	$(PY) scripts/scenario.py out/crossed.net.xml data/corrections.geojson $@
 
 # Guimabus timetable for one weekday, mapped onto the base network (same edges in every scenario)
 out/bus.rou.xml out/stops.add.xml &: out/base.net.xml data/gtfs/guimabus_gtfs_2026.zip params.toml

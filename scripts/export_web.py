@@ -122,10 +122,21 @@ os.makedirs(f"{web}/anim", exist_ok=True)
 
 # per-run KPIs, paired differences against the base run with the same seed
 runs = {s: {os.path.basename(p.rstrip("/")): kpis(p) for p in seeds[s]} for s in scen_ids}
+# A seed whose run collapses into city-wide gridlock (more than twice the scenario's median
+# teleports) is a different regime, not noise: it is counted as a "gridlock day" and left
+# out of the averages, so differences between scenarios are not decided by which run locked up.
+GRIDLOCK_FACTOR = 2.0
+normal, gridlock = {}, {}
+for s in scen_ids:
+    med = statistics.median(r["teleports"] for r in runs[s].values())
+    normal[s] = [sd for sd, r in runs[s].items() if r["teleports"] <= GRIDLOCK_FACTOR * med]
+    if len(normal[s]) < 2:  # nearly every run locks up: that is the scenario, keep them all
+        normal[s] = list(runs[s])
+    gridlock[s] = sorted(set(runs[s]) - set(normal[s]))
 meta_scen = []
 flows = {}
 for s in scen_ids:
-    hourly = [edge_hourly(p) for p in seeds[s]]
+    hourly = [edge_hourly(p) for p in seeds[s] if os.path.basename(p.rstrip("/")) in normal[s]]
     ids = set().union(*hourly)
     mean = {}
     for e in ids:
@@ -134,16 +145,19 @@ for s in scen_ids:
         mean[e] = (veh, [round(statistics.fmean(x)) if x else None for x in sp])
     flows[s] = mean
     fc = json.load(open(f"scenarios/{s}.geojson")) if s != "base" else {}
-    k = {m: ci([r[m] for r in runs[s].values()]) for m in KPI}
+    ok = normal[s]
+    k = {m: ci([runs[s][sd][m] for sd in ok]) for m in KPI}
     paired = {}
     if s != "base":
-        common = sorted(set(runs[s]) & set(runs["base"]))
+        # paired by seed, only seeds that stayed out of gridlock in both runs
+        common = sorted(set(ok) & set(normal["base"])) or sorted(set(runs[s]) & set(runs["base"]))
         for m in KPI:
             paired[m] = ci([runs[s][sd][m] - runs["base"][sd][m] for sd in common])
             paired[m]["pct"] = paired[m]["mean"] / statistics.fmean(runs["base"][sd][m] for sd in common) * 100
     meta_scen.append({"id": s, "title": fc.get("title", "Base · rede actual"),
                       "description": fc.get("description", "A rede de hoje, com a procura de 2030 (inclui o Campus da Justiça)."),
-                      "elasticity": fc.get("elasticity"), "seeds": len(seeds[s]), "kpi": k, "vs_base": paired})
+                      "elasticity": fc.get("elasticity"), "seeds": len(seeds[s]), "kpi": k, "vs_base": paired,
+                      "gridlock_seeds": len(gridlock[s]), "compared_seeds": len(set(normal[s]) & set(normal["base"])) if s != "base" else len(normal[s])})
 
 # network: base edges that carry traffic in any scenario
 keep = [e for e in base_net.getEdges() if any(sum(flows[s].get(e.getID(), ([0],))[0]) >= 50 for s in scen_ids)]
