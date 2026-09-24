@@ -4,5 +4,7 @@ version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
     "eclipse-sumo>=1.27.1",
+    "pandas>=3.0.6",
     "pyproj>=3.8.0",
+    "rtree>=1.4.1",
 ]

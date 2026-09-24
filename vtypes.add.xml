@@ -1,0 +1,9 @@
+<additional>
+    <!-- buses (GTFS) and delivery vans: always recorded in fcd.xml for the web animation -->
+    <vType id="bus" vClass="bus">
+        <param key="has.fcd.device" value="true"/>
+    </vType>
+    <vType id="delivery" vClass="delivery" length="7">
+        <param key="has.fcd.device" value="true"/>
+    </vType>
+</additional>

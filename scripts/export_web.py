@@ -24,23 +24,38 @@ import sumolib  # noqa: E402
 
 out, web = sys.argv[1:3]
 T975 = {2: 12.71, 3: 4.30, 4: 3.18, 5: 2.78, 6: 2.57, 7: 2.45, 8: 2.36, 9: 2.31, 10: 2.26}  # t(0.975, n-1)
-KPI = ("trips", "veh_km", "veh_h", "mean_trip_min", "delay_h", "co2_t", "teleports")
+KPI = ("trips", "veh_km", "veh_h", "mean_trip_min", "delay_h", "co2_t", "teleports", "bus_kmh", "walk_wait_s")
+TYPE_CODE = {"car": 0, "bus": 1, "delivery": 2}
 ANIM_FROM, ANIM_TO, ANIM_STEP = 8 * 3600, 9 * 3600, 4
 
 
 def kpis(run):
+    """car KPIs (finished car trips only), bus commercial speed, pedestrian waiting"""
     k = defaultdict(float)
+    bus_km = bus_h = walks = 0
     for _, el in ET.iterparse(f"{run}/tripinfo.xml"):
-        if el.tag == "tripinfo":
-            k["trips"] += 1
-            k["veh_km"] += float(el.get("routeLength")) / 1000
-            k["veh_h"] += float(el.get("duration")) / 3600
-            k["delay_h"] += float(el.get("timeLoss")) / 3600
-            em = el.find("emissions")
-            k["co2_t"] += float(em.get("CO2_abs")) / 1e9 if em is not None else 0
+        if el.tag == "tripinfo" and float(el.get("arrival")) >= 0:
+            if el.get("vType") == "car":
+                k["trips"] += 1
+                k["veh_km"] += float(el.get("routeLength")) / 1000
+                k["veh_h"] += float(el.get("duration")) / 3600
+                k["delay_h"] += float(el.get("timeLoss")) / 3600
+                em = el.find("emissions")
+                k["co2_t"] += float(em.get("CO2_abs")) / 1e9 if em is not None else 0
+            elif el.get("vType") == "bus":
+                bus_km += float(el.get("routeLength")) / 1000
+                bus_h += float(el.get("duration")) / 3600
+            el.clear()
+        elif el.tag == "personinfo":
+            for w in el.iter("walk"):
+                if float(w.get("arrival", -1)) >= 0:
+                    walks += 1
+                    k["walk_wait_s"] += float(w.get("timeLoss"))
             el.clear()
     k["teleports"] = int(ET.parse(f"{run}/stats.xml").getroot().find("teleports").get("total"))
     k["mean_trip_min"] = k["veh_h"] * 60 / k["trips"]
+    k["bus_kmh"] = bus_km / bus_h if bus_h else 0
+    k["walk_wait_s"] = k["walk_wait_s"] / walks if walks else 0
     return k
 
 
@@ -75,13 +90,19 @@ def anim(fcd):
                 break
             if t >= ANIM_FROM and int(t) % ANIM_STEP == 0:
                 for v in el:
-                    tracks[v.get("id")].append((int(t - ANIM_FROM), round(float(v.get("x")) * 1e5), round(float(v.get("y")) * 1e5), round(float(v.get("speed")) * 3.6)))
+                    if v.tag != "vehicle":
+                        continue
+                    tr = tracks[v.get("id")]
+                    if not tr:
+                        tr.append(TYPE_CODE.get(v.get("type"), 0))
+                    tr.append((int(t - ANIM_FROM), round(float(v.get("x")) * 1e5), round(float(v.get("y")) * 1e5), round(float(v.get("speed")) * 3.6)))
             el.clear()
     res = []
-    for pts in tracks.values():
+    for tr in tracks.values():
+        kind, pts = tr[0], tr[1:]
         if len(pts) < 3:
             continue
-        flat = [pts[0][0], pts[0][1], pts[0][2], pts[0][3]]
+        flat = [kind, pts[0][0], pts[0][1], pts[0][2], pts[0][3]]
         for a, b in zip(pts, pts[1:]):  # delta-encoded lon/lat (1e-5 deg), absolute speed
             flat += [b[1] - a[1], b[2] - a[2], b[3]]
         res.append(flat)
@@ -160,6 +181,16 @@ for name, es in by_name.items():
     streets.append({"name": name, **vals})
 streets = sorted(streets, key=lambda r: -r["base"])[:40]
 
+# premises shown on the map: crossings and bus stops
+crossing_nodes = {c.get("node") for c in ET.parse(f"{out}/crossings.con.xml").getroot()}
+crossing_pts = [[round(v, 5) for v in base_net.convertXY2LonLat(*base_net.getNode(n).getCoord())] for n in crossing_nodes if base_net.hasNode(n)]
+stop_pts = []
+for bs in ET.parse(f"{out}/stops.add.xml").getroot().iter("busStop"):
+    lane = base_net.getLane(bs.get("lane"))
+    x, y = sumolib.geomhelper.positionAtShapeOffset(lane.getShape(), float(bs.get("endPos")))
+    stop_pts.append([round(v, 5) for v in base_net.convertXY2LonLat(x, y)])
+bus_trips = sum(1 for _ in ET.parse(f"{out}/bus.rou.xml").getroot().iter("vehicle"))
+
 commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip()
 tracado = json.load(open("data/pdm/tracado.geojson"))
 json.dump({
@@ -174,6 +205,11 @@ json.dump({
         "pdm_entering_2019": 69000, "gates": zones["gates"],
         "zones": [[z["lon"], z["lat"], z["residents"], z["jobs"], z["education"], z["retail"], [a + b for a, b in zip(z["dep"], z["arr"])]] for z in zones["zones"]],
         "zone_size_m": zones["zone_size_m"],
+        "walks": zones["walks"], "walk_km": P["walk_km"], "deliveries": zones["deliveries"], "double_parked": zones["double_parked"],
+        "on_street_parking_share": P["on_street_parking_share"], "parking_manoeuvre_s": P["parking_manoeuvre_s"],
+        "delivery_stop_s": P["delivery_stop_s"], "deliveries_per_retail_unit": P["deliveries_per_retail_unit"],
+        "double_parking_share": P["double_parking_share"], "bus_trips": bus_trips, "gtfs_date": P["gtfs_date"],
+        "crossings": crossing_pts, "bus_stops": stop_pts,
     },
     "pdm_roads": [{"group": f["properties"]["group"], "corridor": f["properties"]["corridor"], "kind": f["properties"]["kind"],
                    "coords": [round(v, 5) for p in f["geometry"]["coordinates"] for v in p]} for f in tracado["features"]],

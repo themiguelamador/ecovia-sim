@@ -65,9 +65,12 @@ def build(net, features):
             return
         (ox, oy), (px, py) = shape[0], shape[1]
         for e in net.getNode(nid).getIncoming():
+            car = [l.getIndex() for l in e.getLanes() if l.allows("passenger")]  # lane 0 may be a sidewalk
+            if not car:
+                continue
             (ax, ay), (bx, by) = e.getShape()[-2:]
             left = (bx - ax) * (py - oy) - (by - ay) * (px - ox) > 0
-            lane = e.getLaneNumber() - 1 if left else 0
+            lane = max(car) if left else min(car)
             conns.append(f'  <connection from="{e.getID()}" to="{new_edge}" fromLane="{lane}" toLane="0"/>')
 
     def snap(x, y):

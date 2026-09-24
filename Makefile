@@ -34,14 +34,28 @@ data/pdm/tracado.geojson: data/pdm/vias-propostas.png tools/georef.py data/gmr.o
 # Urban typemap: roads without an OSM maxspeed get 50 km/h (the Portuguese urban default,
 # same as the German one the file is named after) instead of rural defaults.
 TYPES := $(SUMO_HOME)/data/typemap/osmNetconvert.typ.xml,$(SUMO_HOME)/data/typemap/osmNetconvertUrbanDe.typ.xml
-out/base.net.xml: data/gmr.osm.xml.gz
+# Sidewalks on streets up to 50 km/h; pedestrian crossings from the OSM crossing nodes
+# (scripts/crossings.py); opposite lanes so cars can overtake a stopped bus or van.
+out/osm.net.xml: data/gmr.osm.xml.gz
 	mkdir -p out
 	$(BIN)/netconvert --osm-files $< -o $@ --type-files $(TYPES) --keep-edges.in-geo-boundary $(BBOX) \
 	  --geometry.remove --roundabouts.guess --ramps.guess --junctions.join --junctions.corner-detail 5 \
 	  --tls.guess-signals --tls.discard-simple --tls.join --tls.default-type actuated \
 	  --keep-edges.by-vclass passenger --remove-edges.by-type highway.service,highway.track,highway.unsurfaced \
 	  --remove-edges.isolated --keep-edges.components 1 --osm.turn-lanes --osm.lane-access \
+	  --sidewalks.guess --sidewalks.guess.max-speed 13.9 --walkingareas --opposites.guess \
 	  --output.street-names --no-warnings
+
+out/base.net.xml: out/osm.net.xml data/gmr.osm.xml.gz scripts/crossings.py
+	$(PY) scripts/crossings.py out/osm.net.xml data/gmr.osm.xml.gz out/crossings.edg.xml out/crossings.con.xml
+	$(BIN)/netconvert --sumo-net-file out/osm.net.xml -e out/crossings.edg.xml -x out/crossings.con.xml -o $@ --no-warnings
+
+# Guimabus timetable for one weekday, mapped onto the base network (same edges in every scenario)
+out/bus.rou.xml out/stops.add.xml &: out/base.net.xml data/gtfs/guimabus_gtfs_2026.zip params.toml
+	$(PY) $(SUMO_HOME)/tools/import/gtfs/gtfs2pt.py -n out/base.net.xml --gtfs data/gtfs/guimabus_gtfs_2026.zip \
+	  --date $$(uv run python -c "import tomllib; print(tomllib.load(open('params.toml','rb'))['gtfs_date'])") \
+	  --modes bus --bbox $(BBOX) --duration 20 --route-output out/bus.rou.xml --additional-output out/stops.add.xml \
+	  --vtype-output out/gtfs-vtypes.xml --fcd out/gtfs-fcd --gpsdat out/gtfs-gpsdat
 
 out/%.net.xml: scenarios/%.geojson out/base.net.xml scripts/scenario.py data/pdm/tracado.geojson
 	$(PY) scripts/scenario.py out/base.net.xml $< $@
@@ -57,18 +71,20 @@ out/%.trips.xml: out/trips.xml out/%.net.xml scripts/induce.py
 
 # --- simulation ------------------------------------------------------------------------
 # Trips are routed at departure on current travel times and re-routed every 2 min
-# (device.rerouting), so drivers adapt to congestion and to new roads. Seed 1 also
-# records 12% of vehicles every 2 s from 7:00 (fcd.xml) for the web animation.
+# (device.rerouting), so drivers adapt to congestion and to new roads. A vehicle stuck
+# inside a junction for 60 s stops blocking it (avoids artificial chain gridlocks). Seed 1 also
+# records 12% of cars, every bus and van, every 2 s from 7:00 (fcd.xml) for the web animation.
 SIM := --begin 0 --end 90000 --device.rerouting.probability 1 --device.rerouting.period 120 \
   --device.rerouting.adaptation-steps 18 --routing-algorithm astar --device.emissions.probability 1 \
-  --time-to-teleport 300 --ignore-route-errors --no-step-log --no-warnings --duration-log.statistics
-FCD := --fcd-output fcd.xml --fcd-output.geo --fcd-output.attributes x,y,speed \
-  --device.fcd.probability 0.12 --device.fcd.begin 25200 --device.fcd.period 2
+  --time-to-teleport 300 --ignore-route-errors --no-step-log --no-warnings --duration-log.statistics \
+  --pedestrian.model striping --tripinfo-output.write-unfinished --ignore-junction-blocker 60
+FCD := --fcd-output fcd.xml --fcd-output.geo --fcd-output.attributes x,y,speed,type \
+  --device.fcd.probability 0.12 --device.fcd.begin 25200 --device.fcd.period 2 --person-device.fcd.probability 0
 
 define RUN
-out/$(1)/seed$(2)/tripinfo.xml: out/$(1).net.xml out/$(1).trips.xml edgedata.add.xml
+out/$(1)/seed$(2)/tripinfo.xml: out/$(1).net.xml out/$(1).trips.xml out/bus.rou.xml out/stops.add.xml edgedata.add.xml vtypes.add.xml
 	mkdir -p $$(@D)
-	$(BIN)/sumo -n out/$(1).net.xml -r out/$(1).trips.xml -a edgedata.add.xml --seed $(2) $(SIM) \
+	$(BIN)/sumo -n out/$(1).net.xml -r out/$(1).trips.xml,out/bus.rou.xml -a vtypes.add.xml,out/stops.add.xml,edgedata.add.xml --seed $(2) $(SIM) \
 	  --output-prefix $$(@D)/ --tripinfo-output tripinfo.xml --statistic-output stats.xml $(if $(filter 1,$(2)),$(FCD)) > $$(@D)/log.txt 2>&1
 endef
 $(foreach s,$(SCENARIOS),$(foreach k,$(SEEDS),$(eval $(call RUN,$(s),$(k)))))
@@ -81,8 +97,8 @@ run: out/$(SCEN)/seed$(SEED)/tripinfo.xml
 compare: out/base/seed1/tripinfo.xml out/$(SCEN)/seed1/tripinfo.xml
 	$(PY) scripts/report.py out $(SCEN)
 
-gui: out/$(SCEN).net.xml out/$(SCEN).trips.xml
-	$(BIN)/sumo-gui -n out/$(SCEN).net.xml -r out/$(SCEN).trips.xml --begin 25200 --device.rerouting.probability 1 \
+gui: out/$(SCEN).net.xml out/$(SCEN).trips.xml out/bus.rou.xml
+	$(BIN)/sumo-gui -n out/$(SCEN).net.xml -r out/$(SCEN).trips.xml,out/bus.rou.xml -a vtypes.add.xml,out/stops.add.xml --begin 25200 --device.rerouting.probability 1 \
 	  --device.rerouting.period 120 --ignore-route-errors --time-to-teleport 300 --delay 20
 
 geh: out/$(SCEN)/seed1/tripinfo.xml data/counts.csv

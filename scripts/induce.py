@@ -12,6 +12,7 @@ Short/medium-run elasticities of car traffic to travel time are ~ -0.3 to -0.5, 
 Scenarios without an elasticity (and the base) get the base trips unchanged.
 usage: induce.py BASE_TRIPS BASE_NET SCEN_NET [SCENARIO.geojson] OUT_TRIPS
 """
+import copy
 import heapq
 import json
 import os
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         sys.exit()
     nb, ns = sumolib.net.readNet(base_net), sumolib.net.readNet(scen_net)
     root = ET.parse(base_trips).getroot()
-    trips = root.findall("trip")
+    trips = [t for t in root.findall("trip") if t.get("type") == "car"]  # vans are not induced
     # one representative origin/destination edge per cell: the most used one
     use = defaultdict(lambda: defaultdict(int))
     for t in trips:
@@ -76,15 +77,18 @@ if __name__ == "__main__":
             continue
         out_trips.append(t)
         if f > 1 and rng.random() < f - 1:
-            dup = ET.Element("trip", dict(t.attrib))
+            dup = copy.deepcopy(t)  # keeps the parking stop inside
             dup.set("id", t.get("id") + "i")
             dup.set("depart", f"{max(0.0, float(t.get('depart')) + rng.uniform(-300, 300)):.1f}")
             out_trips.append(dup)
             added += 1
-    for t in trips:
-        root.remove(t)
-    for t in sorted(out_trips, key=lambda t: float(t.get("depart"))):
-        root.append(t)
+    # SUMO needs the whole file (cars, vans, pedestrians) sorted by departure
+    keep = [c for c in root if c.tag != "vType" and not (c.tag == "trip" and c.get("type") == "car")] + out_trips
+    types = root.findall("vType")
+    for c in list(root):
+        root.remove(c)
+    for c in types + sorted(keep, key=lambda c: float(c.get("depart"))):
+        root.append(c)
     ET.ElementTree(root).write(out)
     faster = sum(1 for v in factor.values() if v > 1.001)
     print(f"elasticity {e}: {faster}/{len(factor)} zone pairs faster; +{added} induced, -{dropped} trips "

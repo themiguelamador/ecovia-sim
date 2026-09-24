@@ -28,6 +28,38 @@ corridor_to_city = 0.65          # calibrated so entries match the PDM 2019 esti
 through_share = 0.3
 outside_activity = 0.5      # jobs/retail/schools per resident outside, relative to the centre's ratio
 
+# --- pedestrians (walk trips cross the street at OSM crossings) -----------------------
+# The non-car share of each trip is walked with probability exp(-d / walk_km); the rest is
+# public transport or other modes (not simulated as people). Census 2021: 15.3% of commutes
+# on foot or bike. Pedestrians walk on sidewalks and cross at the ~600 OSM crossings; at a
+# marked crossing (passadeira) cars must stop for them.
+walk_km = 1.5
+pedestrian_scale = 1.0       # 0 = no pedestrians (faster runs)
+
+# --- on-street parking and deliveries -------------------------------------------------
+# Share of car trips ending/starting on local streets (residential, tertiary, unclassified,
+# secondary) that park on the street, parallel to the kerb. Arriving: the car stops in its
+# lane for a parking manoeuvre; leaving: it pulls out from standstill.
+# CALIBRATED with the deliveries below so that Guimabus buses run at ~10 km/h in the
+# morning peak, the PDM figure for the busiest urban lines (Vol. VI, p. 62). Tested
+# (seed 1, buses leaving 7:30-9:00): 50%/10-25 s + 60%/5-15 min -> 7.6 km/h and near
+# gridlock; 30%/8-15 s + 40%/3-10 min -> 8.2 km/h; 20%/8-15 s + 25%/3-10 min -> 10.0 km/h.
+on_street_parking_share = 0.2
+parking_manoeuvre_s = [8, 15]    # uniform range, seconds blocking the lane
+# ASSUMPTION: delivery vans per retail unit per weekday, and the share that stop in the lane
+# ("segunda fila") instead of a loading bay. Following cars wait or overtake by the
+# opposite lane when it is free.
+deliveries_per_retail_unit = 0.6
+double_parking_share = 0.25      # calibrated, see above
+delivery_stop_s = [180, 600]
+
+# --- buses ------------------------------------------------------------------------------
+# Guimabus GTFS 2026 (Minho Access Point, CC-BY), imported with SUMO's gtfs2pt for one
+# school-term weekday: every trip, stop and timetable inside the study area. Buses stop in
+# the lane at each stop (no bays), 20 s minimum. Intermunicipal lines (Transdev etc.) have no
+# public GTFS and are not simulated.
+gtfs_date = "20261007"
+
 # --- trip generation -------------------------------------------------------------
 # Trips per resident per day by purpose (all modes). IMob 2017 (INE): ~2.7 trips/person/day
 # in the Norte region; split by purpose below. Return legs are generated automatically.
@@ -149,3 +181,4 @@ shopping      = [0,0,0,0,0,0,0,1,3,6,10,11,7,5,6,8,9,10,10,7,4,2,1,0]
 shopping_back = [0,0,0,0,0,0,0,0,1,3,7,10,10,6,5,7,9,10,11,10,6,3,2,1]
 midday        = [0,0,0,0,0,0,0,1,2,5,8,9,14,12,8,7,6,5,4,3,2,1,0,0]
 through       = [1,1,1,1,1,2,4,7,8,6,5,5,5,5,5,6,7,8,7,5,3,2,2,1]
+deliveries    = [0,0,0,0,0,0,2,8,14,16,14,10,6,4,5,5,4,3,2,1,0,0,0,0]

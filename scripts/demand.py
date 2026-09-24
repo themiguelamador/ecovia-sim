@@ -1,7 +1,10 @@
-"""Daily car demand for the study area.
+"""Daily demand for the study area: cars, pedestrians and delivery vans.
 
 census (INE BGRI 2021) + OSM attractors -> zones -> gravity model per purpose
 -> car share by distance -> trips spread over the day by hourly profiles.
+The walked share of short trips becomes pedestrians (they use the crossings); cars that
+park on local streets stop in the lane to manoeuvre and pull out from standstill; delivery
+vans double-park at shops. Buses come from the GTFS (Makefile), not from here.
 
 usage: demand.py NET CENSUS OSM PARAMS OUT_TRIPS OUT_ZONES_JSON
 """
@@ -174,8 +177,13 @@ for z in zones.values():
         z.gate = min((g for g in gates if g["out"]), key=lambda g: angdiff(g["bearing"], b))
 
 # --- trips -------------------------------------------------------------------------------
-trips = []
+trips, walks = [], []
 PROF = P["profiles"]
+LOCAL = {"highway.residential", "highway.living_street", "highway.tertiary", "highway.unclassified", "highway.secondary"}
+info = {}
+for e in net.getEdges():
+    car = [l.getIndex() for l in e.getLanes() if l.allows("passenger")]
+    info[e.getID()] = (base_type(e), e.getLength(), min(car) if car else None, any(l.allows("pedestrian") for l in e.getLanes()))
 
 
 def pick_edge(z, attr, leaving):
@@ -193,6 +201,14 @@ def emit(o, d, o_attr, d_attr, n, profile):
             trips.append((h * 3600 + rng.random() * 3600, f, t))
             o.dep[h] += 1
             d.arr[h] += 1
+
+
+def emit_walk(o, d, o_attr, d_attr, n, profile):
+    for _ in range(n):
+        f, t = pick_edge(o, o_attr, False), pick_edge(d, d_attr, True)
+        if f != t and info[f][3] and info[t][3]:
+            h = rng.choices(range(24), weights=PROF[profile])[0]
+            walks.append((h * 3600 + rng.random() * 3600, f, t))
 
 
 def stochastic_round(v):
@@ -217,11 +233,16 @@ for name, p in P["purposes"].items():
         for d, km, wd in w:
             if o.outer and d.outer or wd <= 0:
                 continue  # ponytail: outer->outer trips never enter the study area
-            cars = prod * wd / sw * pcar(km) / P["occupancy"]
-            n = stochastic_round(cars)
+            people = prod * wd / sw
+            n = stochastic_round(people * pcar(km) / P["occupancy"])
             emit(o, d, p["producer"], p["attractor"], n, p["out_profile"])
             if p["back_profile"]:
                 emit(d, o, p["attractor"], p["producer"], n, p["back_profile"])
+            if not (o.outer or d.outer):
+                nw = stochastic_round(people * (1 - pcar(km)) * math.exp(-km / P["walk_km"]) * P["pedestrian_scale"])
+                emit_walk(o, d, p["producer"], p["attractor"], nw, p["out_profile"])
+                if p["back_profile"]:
+                    emit_walk(d, o, p["attractor"], p["producer"], nw, p["back_profile"])
 
 # inter-municipal traffic: each PDM corridor's volume split between the gates facing it
 corr = P["corridors"]
@@ -251,12 +272,50 @@ for g in gates:
         emit(gate_z[g["node"]], z, None, "jobs", 1, "through")
         emit(z, gate_z[g["node"]], "jobs", None, 1, "through") if g["out"] else None
 
+# delivery vans: in from a gate, stop at a shop (in the lane if double-parked), out by another gate
+deliveries = []
+retail_z = [z for z in inner if z.a["retail"] > 0]
+g_in = [g for g in gates if g["daily_in"] > 0]
+g_out = [g for g in gates if g["out"]]
+for _ in range(stochastic_round(P["deliveries_per_retail_unit"] * tot["retail"] * P["scale"])):
+    z = rng.choices(retail_z, weights=[z.a["retail"] for z in retail_z])[0]
+    e = pick_edge(z, "retail", True)
+    if info[e][1] < 15 or info[e][2] is None:
+        continue
+    h = rng.choices(range(24), weights=PROF["deliveries"])[0]
+    gi = rng.choices(g_in, weights=[g["daily_in"] for g in g_in])[0]
+    go = rng.choice(g_out)
+    stop = rng.random() < P["double_parking_share"]
+    deliveries.append((h * 3600 + rng.random() * 3600, gi["inn"], go["out"], e if stop else None))
+
+
+def stop_xml(e, lo, hi):
+    _, length, lane, _ = info[e]
+    pos = rng.uniform(5, max(6, length - 3))
+    return f'<stop lane="{e}_{lane}" endPos="{pos:.1f}" duration="{rng.uniform(lo, hi):.0f}" parking="false"/>', pos
+
+
 # --- write -------------------------------------------------------------------------------
-trips.sort()
+rows = []
+share, man = P["on_street_parking_share"], P["parking_manoeuvre_s"]
+for i, (t, a, b) in enumerate(trips):
+    attrs, inner_xml = 'departLane="free" departSpeed="max"', ""
+    if info[a][0] in LOCAL and rng.random() < share:
+        attrs = 'departLane="free" departPos="random_free" departSpeed="0"'  # pulling out of a parking space
+    if info[b][0] in LOCAL and info[b][1] > 12 and info[b][2] is not None and rng.random() < share:
+        xml, pos = stop_xml(b, *man)  # parallel-parking manoeuvre in the lane, then gone
+        attrs += f' arrivalPos="{min(info[b][1], pos + 1):.1f}"'
+        inner_xml = xml
+    rows.append((t, f'  <trip id="{i}" type="car" depart="{t:.1f}" from="{a}" to="{b}" {attrs}>{inner_xml}</trip>'))
+for i, (t, a, b) in enumerate(walks):
+    rows.append((t, f'  <person id="p{i}" depart="{t:.1f}"><walk from="{a}" to="{b}"/></person>'))
+for i, (t, a, b, e) in enumerate(deliveries):
+    inner_xml = stop_xml(e, *P["delivery_stop_s"])[0] if e else ""
+    rows.append((t, f'  <trip id="d{i}" type="delivery" depart="{t:.1f}" from="{a}" to="{b}" departLane="free" departSpeed="max">{inner_xml}</trip>'))
+rows.sort(key=lambda r: r[0])
 with open(trips_out, "w") as f:
     f.write('<routes>\n  <vType id="car" vClass="passenger"/>\n')
-    for i, (t, a, b) in enumerate(trips):
-        f.write(f'  <trip id="{i}" type="car" depart="{t:.1f}" from="{a}" to="{b}" departLane="best" departSpeed="max"/>\n')
+    f.writelines(r[1] + "\n" for r in rows)
     f.write("</routes>\n")
 
 entering = defaultdict(int)
@@ -270,11 +329,13 @@ for z in inner:
     lon, lat = net.convertXY2LonLat(z.x, z.y)
     out.append(dict(lon=round(lon, 5), lat=round(lat, 5), **{a: round(z.a[a]) for a in ATTRS}, dep=z.dep, arr=z.arr))
 json.dump(dict(
-    zone_size_m=Z, zones=out, totals={a: round(tot[a]) for a in ATTRS}, trips=len(trips),
+    zone_size_m=Z, zones=out, totals={a: round(tot[a]) for a in ATTRS}, trips=len(trips), walks=len(walks),
+    deliveries=len(deliveries), double_parked=sum(1 for d in deliveries if d[3]),
     entering_per_day=sum(entering.values()), entering_by_corridor=dict(entering),
     gates=[{"lonlat": [round(v, 5) for v in net.convertXY2LonLat(g["x"], g["y"])], **{k: g[k] for k in ("node", "type", "corridor")},
             "daily_in": round(g["daily_in"])} for g in gates],
     projects=[{k: p[k] for k in p if k != "xy"} for p in projects]), open(zones_out, "w"), ensure_ascii=False)
+print(f"{len(walks)} walks, {len(deliveries)} deliveries ({sum(1 for d in deliveries if d[3])} double-parked)")
 print(f"{len(trips)} car trips, {len(inner)} inner zones, {len(zl) - len(inner)} outer zones, {len(gates)} gates; "
       + ", ".join(f"{a}={tot[a]:.0f}" for a in ATTRS))
 print(f"vehicles entering the study area per day: {sum(entering.values())} (PDM: ~69 000 in 2019, up to ~100 000) "

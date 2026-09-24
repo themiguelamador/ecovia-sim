@@ -14,6 +14,8 @@ vias fechadas.
 | Rede viária | OpenStreetMap (ODbL), snapshot em `data/gmr.osm.xml.gz` |
 | População | INE, Censos 2021, BGRI por subsecção (`data/census.csv`) |
 | Emprego, comércio, ensino | OpenStreetMap (lojas, serviços, escolas, universidade, hospital…) |
+| Autocarros | Guimabus, GTFS 2026 ([Minho Access Point](https://minhoaccesspoint.eu/pt_PT/dataset/operador-de-sptp-de-guimaraes), CC-BY) |
+| Passadeiras | OpenStreetMap (`highway=crossing`), ~600 na área |
 | Parâmetros | `params.toml` — todos os números do modelo, comentados |
 
 ## Começar
@@ -50,6 +52,20 @@ copia-se para `sites/ecovia/public/simulacao/data/` no repositório do site.
      do TMDA 2021 por corredor (PDM Vol. VI, Figura 4), ajustado para ~69 000 entradas/dia,
      a estimativa do próprio PDM. `demand.py` imprime a verificação.
 3. **Escolha de percurso** (`sumo`). Caminho mais rápido à partida, reavaliado a cada 2 min.
+   Na mesma simulação:
+   - **Peões** — a parte não motorizada das viagens curtas (`walk_km`) anda nos passeios
+     (`--sidewalks.guess`) e atravessa nas passadeiras do OSM (`scripts/crossings.py`: no
+     cruzamento mais próximo, ou a meio do quarteirão dividindo a rua). Nas marcadas o peão
+     tem prioridade: o carro pára.
+   - **Autocarros** — todos os horários da Guimabus de um dia útil (`gtfs_date`), postos na rede
+     com o `gtfs2pt` do SUMO. Param na via pelo menos 20 s.
+   - **Estacionamento na rua** — `on_street_parking_share` das viagens que acabam numa rua local
+     param na via `parking_manoeuvre_s` antes de chegar; as que partem de uma rua local
+     arrancam paradas.
+   - **Cargas e descargas** — carrinhas (`deliveries_per_retail_unit`) que, em
+     `double_parking_share` dos casos, param na via `delivery_stop_s`.
+   - Quem fica atrás de um veículo parado espera ou ultrapassa pela via contrária quando está
+     livre (`--opposites.guess`).
 4. **Vias do PDM** (`tools/georef.py`). A imagem das vias propostas (`data/pdm/vias-propostas.png`)
    é georreferenciada por pontos de controlo (estádio, rotunda da Av. D. João IV, nó da Circular;
    erro médio 12 m; verificação em `data/pdm/overlay.png`), as linhas vermelhas são traçadas e
@@ -94,8 +110,11 @@ são estimativas da literatura, não medições em Guimarães. Antes de publicar
 
 ## Limites conhecidos
 
-- Só automóveis. Sem autocarros, bicicletas nem peões na rede (a repartição modal é um
-  parâmetro, não um modelo de escolha). S2 precisa das linhas do Guimabus (GTFS).
+- Autocarros só da Guimabus (sem GTFS público das linhas intermunicipais); sem passageiros.
+- Peões só das viagens curtas dos residentes (sem turistas nem visitantes); sem bicicletas.
+- A repartição modal é um parâmetro, não um modelo de escolha.
+- Estacionamento na rua e descargas em segunda fila são premissas (`ASSUMPTION`), sem
+  procura de lugar.
 - Sem estacionamento: os veículos desaparecem ao chegar.
 - Procura fixa entre cenários, excepto nas variantes `_induzida`, que usam tempos em via
   livre: subestimam a indução onde a via nova alivia um corredor congestionado.
@@ -116,6 +135,7 @@ Os **dados** incluídos mantêm as licenças das fontes:
 |---|---|---|
 | `data/gmr.osm.xml.gz` | © contribuidores do OpenStreetMap | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) — atribuição e partilha nos mesmos termos |
 | `data/census.csv` | INE, Censos 2021 (BGRI), derivado por `scripts/census.py` | dados abertos do INE, com citação da fonte |
+| `data/gtfs/guimabus_gtfs_2026.zip` | Guimabus / Município de Guimarães, via Minho Access Point | [CC-BY](https://creativecommons.org/licenses/by/4.0/) |
 | `data/pdm/vias-propostas.png` | imagem divulgada com a revisão do PDM de Guimarães (Set 2026) | reproduzida para análise e crítica; direitos do autor original |
 | `data/pdm/tracado.geojson`, `transform.json`, `overlay.png` | derivados da imagem do PDM e do OSM por `tools/georef.py` | ODbL (derivado de OSM) |
 
