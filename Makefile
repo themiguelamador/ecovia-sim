@@ -63,7 +63,7 @@ out/bus.rou.xml out/stops.add.xml &: out/base.net.xml data/gtfs/guimabus_gtfs_20
 	  --modes bus --bbox $(BBOX) --duration 20 --route-output out/bus.rou.xml --additional-output out/stops.add.xml \
 	  --vtype-output out/gtfs-vtypes.xml --fcd out/gtfs-fcd --gpsdat out/gtfs-gpsdat
 
-out/%.net.xml: scenarios/%.geojson out/base.net.xml scripts/scenario.py data/pdm/tracado.geojson data/urbanizacao.geojson
+out/%.net.xml: scenarios/%.geojson out/base.net.xml scripts/scenario.py data/pdm/tracado.geojson data/urbanizacao.geojson data/pdm/cavalinho.geojson data/pdm/junctions.geojson data/pdm/urgezes_acesso.geojson
 	$(PY) scripts/scenario.py out/base.net.xml $< $@
 
 # --- demand ----------------------------------------------------------------------------
@@ -73,6 +73,11 @@ out/trips.xml out/zones.json &: out/base.net.xml data/census.csv data/gmr.osm.xm
 	$(PY) scripts/demand.py out/base.net.xml data/census.csv data/gmr.osm.xml.gz params.toml out/trips.xml out/zones.json
 
 # the same demand plus the new homes, health centre and Monte do Cavalinho (scenarios u*)
+# urbanização: its homes on the Monte do Cavalinho need the new road (a future PDM link, not in
+# today's network), so this demand is built on the U0 network; every U scenario includes that road first
+out/trips_urbanizacao.xml: out/u0_base_urbanizacao.net.xml data/census.csv data/gmr.osm.xml.gz params.toml scripts/demand.py
+	$(PY) scripts/demand.py out/u0_base_urbanizacao.net.xml data/census.csv data/gmr.osm.xml.gz params.toml out/trips_urbanizacao.xml out/zones_urbanizacao.json urbanizacao
+
 # demand variants (a pattern rule with two targets runs once for both, also in make 3.81)
 out/trips_%.xml out/zones_%.json: out/base.net.xml data/census.csv data/gmr.osm.xml.gz params.toml scripts/demand.py
 	$(PY) scripts/demand.py out/base.net.xml data/census.csv data/gmr.osm.xml.gz params.toml out/trips_$*.xml out/zones_$*.json $*

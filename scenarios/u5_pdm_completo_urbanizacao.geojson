@@ -6,6 +6,9 @@
  "reference": "u0_base_urbanizacao",
  "include": [
   {
+   "file": "../data/pdm/cavalinho.geojson"
+  },
+  {
    "file": "../data/urbanizacao.geojson"
   },
   {

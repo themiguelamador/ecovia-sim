@@ -13,6 +13,9 @@
     "circular",
     "urgezes_main"
    ]
+  },
+  {
+   "file": "../data/pdm/urgezes_acesso.geojson"
   }
  ]
 }

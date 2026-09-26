@@ -12,6 +12,9 @@
     "outras"
    ],
    "kind": "nova"
+  },
+  {
+   "file": "../data/pdm/urgezes_acesso.geojson"
   }
  ],
  "features": []

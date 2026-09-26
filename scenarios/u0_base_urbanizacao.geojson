@@ -6,6 +6,9 @@
  "reference": "base",
  "include": [
   {
+   "file": "../data/pdm/cavalinho.geojson"
+  },
+  {
    "file": "../data/urbanizacao.geojson"
   }
  ],

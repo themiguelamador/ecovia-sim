@@ -1,0 +1,41 @@
+{
+ "type": "FeatureCollection",
+ "description": "Acesso da ligação a Urgezes à rotunda da estação, para os cenários sem o Monte do Cavalinho aberto.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "group": "urgezes_main",
+    "corridor": "Ligação Av. D. João IV – Urgezes",
+    "name": "Ligação Av. D. João IV – Urgezes",
+    "speed_kmh": 30,
+    "note": "Sem o Monte do Cavalinho aberto, a ligação a Urgezes chega à rotunda da estação pelo troço já construído até ao gancho (o mesmo da rua do Cavalinho). Nos cenários U este troço vem com a rua do Cavalinho."
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.29281,
+      41.43465
+     ],
+     [
+      -8.292725,
+      41.434201
+     ],
+     [
+      -8.292779,
+      41.433839
+     ],
+     [
+      -8.292918,
+      41.433437
+     ],
+     [
+      -8.293058,
+      41.433252
+     ]
+    ]
+   }
+  }
+ ]
+}

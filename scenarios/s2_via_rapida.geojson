@@ -10,6 +10,9 @@
     "urgezes_main"
    ],
    "kind": "nova"
+  },
+  {
+   "file": "../data/pdm/urgezes_acesso.geojson"
   }
  ],
  "features": []
