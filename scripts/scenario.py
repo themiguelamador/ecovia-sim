@@ -6,6 +6,8 @@ Feature properties:
   lanes      lanes per direction           (add: default 1; modify: optional)
   speed_kmh  speed limit                   (add: default 50; modify: optional)
   oneway     true = only in drawing direction (add only)
+  street     modify/remove/oneway: only segments with this street name (a short segment of
+             another street within 25 m would otherwise match too)
   name       street name                   (add only)
 A Point feature with action "junction" and "type" (a SUMO junction type, e.g.
 "right_before_left") sets the type of the existing junction within 30 m of it.
@@ -124,7 +126,7 @@ def build(net, features):
                 edges.append(f'  <edge id="-scn{i}" from="{b}" to="{a}" {attrs} shape="{rshape}"/>')
                 feed(b, f"-scn{i}", line[::-1])
         else:
-            hits = [e for e in net.getEdges() if near_line(e, line)]
+            hits = [e for e in net.getEdges() if near_line(e, line) and pr.get("street", e.getName()) == e.getName()]
             if not hits:
                 sys.exit(f"feature {i}: no existing road within {MATCH_M} m of the whole line")
             if action == "oneway":
@@ -154,6 +156,8 @@ def build(net, features):
         edges.append(f'  <edge id="scnc_{nid}" from="{nid}" to="{best.getID()}" {attrs}/>')
         edges.append(f'  <edge id="-scnc_{nid}" from="{best.getID()}" to="{nid}" {attrs}/>')
         feed(best.getID(), f"-scnc_{nid}", [(bx, by), (x, y)])
+    gone = set(remove)  # a segment both removed and modified would make netconvert fail
+    edges = [x for x in edges if x.split('"')[1] not in gone]
     return nodes, edges, remove, conns
 
 

@@ -63,6 +63,123 @@
      ]
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "modify",
+    "speed_kmh": 20,
+    "name": "Rua do Centro (1215074930#0)",
+    "note": "Rua de acesso residencial e estacionamento, quase sem trânsito de passagem (indicação da associação): 20 km/h.",
+    "street": "Rua do Centro"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.292267,
+      41.435051
+     ],
+     [
+      -8.292042,
+      41.435013
+     ],
+     [
+      -8.291987,
+      41.434994
+     ],
+     [
+      -8.291824,
+      41.435015
+     ],
+     [
+      -8.291605,
+      41.435088
+     ],
+     [
+      -8.291387,
+      41.435653
+     ],
+     [
+      -8.291245,
+      41.435989
+     ],
+     [
+      -8.291044,
+      41.436551
+     ],
+     [
+      -8.290912,
+      41.436871
+     ],
+     [
+      -8.29086,
+      41.436956
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "modify",
+    "speed_kmh": 20,
+    "name": "Rua do Centro (104203827#0)",
+    "note": "Rua de acesso residencial e estacionamento, quase sem trânsito de passagem (indicação da associação): 20 km/h.",
+    "street": "Rua do Centro"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.291264,
+      41.437631
+     ],
+     [
+      -8.291057,
+      41.437504
+     ],
+     [
+      -8.290922,
+      41.437291
+     ],
+     [
+      -8.29084,
+      41.437164
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "modify",
+    "speed_kmh": 20,
+    "name": "Rua do Centro (130705759#0)",
+    "note": "Rua de acesso residencial e estacionamento, quase sem trânsito de passagem (indicação da associação): 20 km/h.",
+    "street": "Rua do Centro"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.278426,
+      41.45689
+     ],
+     [
+      -8.278761,
+      41.456989
+     ],
+     [
+      -8.279022,
+      41.457071
+     ],
+     [
+      -8.279061,
+      41.457096
+     ]
+    ]
+   }
   }
  ]
 }
