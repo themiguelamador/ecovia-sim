@@ -160,27 +160,15 @@
 "kind": "nova",
 "main": true,
 "road": 1,
-"share_on_existing_road": 0.22,
-"length_m": 715
+"share_on_existing_road": 0.2,
+"length_m": 557
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.292677,
-41.434596
-],
-[
--8.292539,
-41.434485
-],
-[
--8.2926,
-41.432981
-],
-[
--8.292697,
-41.432911
+-8.29306,
+41.43325
 ],
 [
 -8.292939,
@@ -217,7 +205,7 @@
 "kind": "nova",
 "main": true,
 "road": 1,
-"share_on_existing_road": 0.22,
+"share_on_existing_road": 0.2,
 "length_m": 399
 },
 "geometry": {
@@ -266,7 +254,7 @@
 "kind": "nova",
 "main": true,
 "road": 1,
-"share_on_existing_road": 0.22,
+"share_on_existing_road": 0.2,
 "length_m": 189
 },
 "geometry": {

@@ -240,7 +240,8 @@ retail = 15                  # same weight as any supermarket in the model (para
 name = "Quarteirão junto ao Hotel de Guimarães"
 lon = -8.2968
 lat = 41.4370
-lot_ha = 2.0
+dwellings = 600              # per the association (the block north of the hotel)
+radius_m = 120               # a large block: spread over it
 retail = 8                   # shops on the ground floor
 jobs = 40
 [[developments]]

@@ -215,6 +215,110 @@
      ]
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "add",
+    "name": "Monte do Cavalinho",
+    "speed_kmh": 30,
+    "note": "Rua nova do Monte do Cavalinho, já construída mas ausente do OpenStreetMap (traçada sobre imagem de satélite Esri 2026): saída sul da rotunda da estação, desce a encosta e segue para poente até à rotunda poente."
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.29281,
+      41.43465
+     ],
+     [
+      -8.292725,
+      41.434201
+     ],
+     [
+      -8.292779,
+      41.433839
+     ],
+     [
+      -8.292918,
+      41.433437
+     ],
+     [
+      -8.293058,
+      41.433252
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "add",
+    "name": "Monte do Cavalinho",
+    "speed_kmh": 30,
+    "note": "Rua nova do Monte do Cavalinho, já construída mas ausente do OpenStreetMap (traçada sobre imagem de satélite Esri 2026): saída sul da rotunda da estação, desce a encosta e segue para poente até à rotunda poente."
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.293058,
+      41.433252
+     ],
+     [
+      -8.293304,
+      41.433059
+     ],
+     [
+      -8.293626,
+      41.432898
+     ],
+     [
+      -8.293884,
+      41.432978
+     ],
+     [
+      -8.293948,
+      41.433236
+     ],
+     [
+      -8.293916,
+      41.433718
+     ],
+     [
+      -8.293841,
+      41.43404
+     ],
+     [
+      -8.294023,
+      41.434281
+     ],
+     [
+      -8.294506,
+      41.434378
+     ],
+     [
+      -8.295257,
+      41.434474
+     ],
+     [
+      -8.295901,
+      41.434539
+     ],
+     [
+      -8.296545,
+      41.434603
+     ],
+     [
+      -8.297081,
+      41.434699
+     ],
+     [
+      -8.29734,
+      41.43563
+     ]
+    ]
+   }
   }
  ]
 }

@@ -36,6 +36,7 @@ sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
 import sumolib  # noqa: E402
 
 SNAP_M, MATCH_M, CONNECT_M = 60, 25, 250
+PFX = "scn"  # id prefix of added roads/junctions; "fix" for data/corrections.geojson (part of the base network)
 MAINLINE = {"highway.trunk", "highway.motorway"}  # never join these at grade: use a ramp or local road
 
 
@@ -86,13 +87,15 @@ def build(net, features):
             conns.append(f'  <connection from="{e.getID()}" to="{new_edge}" fromLane="{lane}" toLane="0"/>')
 
     def snap(x, y, new=False):
-        for nid, nx, ny in ([] if new else new_nodes):
-            if math.hypot(x - nx, y - ny) <= SNAP_M:
-                return nid
+        """the closest junction within SNAP_M: an added line's end (never a dead end) or an
+        existing joinable junction; `new` = always a new junction"""
+        cands = [(math.hypot(x - nx, y - ny), nid) for nid, nx, ny in new_nodes if nid not in dead_ends]
         best = min((n for n in net.getNodes() if joinable(n)), key=lambda n: math.dist(n.getCoord(), (x, y)))
-        if not new and math.dist(best.getCoord(), (x, y)) <= SNAP_M:
-            return best.getID()
-        nid = f"scn{len(new_nodes)}"
+        cands.append((math.dist(best.getCoord(), (x, y)), best.getID()))
+        d, nid = min(cands)
+        if not new and d <= SNAP_M:
+            return nid
+        nid = f"{PFX}{len(new_nodes)}"
         new_nodes.append((nid, x, y))
         nodes.append(f'  <node id="{nid}" x="{x:.2f}" y="{y:.2f}"/>')
         return nid
@@ -122,12 +125,12 @@ def build(net, features):
             if pr.get("name") or pr.get("corridor"):
                 attrs += f' name="{pr.get("name") or pr["corridor"]}"'
             shape = " ".join(f"{x:.2f},{y:.2f}" for x, y in line)
-            edges.append(f'  <edge id="scn{i}" from="{a}" to="{b}" {attrs} shape="{shape}"/>')
-            feed(a, f"scn{i}", line)
+            edges.append(f'  <edge id="{PFX}{i}" from="{a}" to="{b}" {attrs} shape="{shape}"/>')
+            feed(a, f"{PFX}{i}", line)
             if not pr.get("oneway"):
                 rshape = " ".join(f"{x:.2f},{y:.2f}" for x, y in reversed(line))
-                edges.append(f'  <edge id="-scn{i}" from="{b}" to="{a}" {attrs} shape="{rshape}"/>')
-                feed(b, f"-scn{i}", line[::-1])
+                edges.append(f'  <edge id="-{PFX}{i}" from="{b}" to="{a}" {attrs} shape="{rshape}"/>')
+                feed(b, f"-{PFX}{i}", line[::-1])
         else:
             hits = [e for e in net.getEdges() if near_line(e, line) and pr.get("street", e.getName()) == e.getName()]
             if not hits:
@@ -156,9 +159,9 @@ def build(net, features):
         print(f"assumed connector {nid}: {math.dist(best.getCoord(), (x, y)):.0f} m to {best.getID()}")
         bx, by = best.getCoord()
         attrs = 'numLanes="1" speed="13.89" priority="9" allow="passenger bus truck delivery emergency" name="Ligação à rua mais próxima (assumida)"'
-        edges.append(f'  <edge id="scnc_{nid}" from="{nid}" to="{best.getID()}" {attrs}/>')
-        edges.append(f'  <edge id="-scnc_{nid}" from="{best.getID()}" to="{nid}" {attrs}/>')
-        feed(best.getID(), f"-scnc_{nid}", [(bx, by), (x, y)])
+        edges.append(f'  <edge id="{PFX}c_{nid}" from="{nid}" to="{best.getID()}" {attrs}/>')
+        edges.append(f'  <edge id="-{PFX}c_{nid}" from="{best.getID()}" to="{nid}" {attrs}/>')
+        feed(best.getID(), f"-{PFX}c_{nid}", [(bx, by), (x, y)])
     gone = set(remove)  # a segment both removed and modified would make netconvert fail
     edges = [x for x in edges if x.split('"')[1] not in gone]
     return nodes, edges, remove, conns
@@ -178,6 +181,8 @@ def load_features(path):
 
 if __name__ == "__main__":
     base, scen, out = sys.argv[1:4]
+    if os.path.basename(scen).startswith("corrections"):
+        PFX = "fix"
     net = sumolib.net.readNet(base)
     nodes, edges, remove, conns = build(net, load_features(scen))
     tmp = tempfile.mkdtemp()
@@ -193,6 +198,6 @@ if __name__ == "__main__":
     patched = sumolib.net.readNet(out)
     new_ids = {n.split('"')[1] for n in nodes if 'type=' not in n}  # not the retyped junctions
     dead = [e.getID() for e in patched.getEdges()
-            if e.getID().lstrip("-").startswith("scn") and not e.getIncoming() and e.getFromNode().getID() not in new_ids]
+            if e.getID().lstrip("-").startswith(PFX) and not e.getIncoming() and e.getFromNode().getID() not in new_ids]
     if dead:
         sys.exit(f"new edges with no way in: {dead}")
