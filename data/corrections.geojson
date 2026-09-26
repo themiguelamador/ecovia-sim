@@ -5,6 +5,21 @@
   {
    "type": "Feature",
    "properties": {
+    "action": "split",
+    "street": "Rua António da Costa Guimarães",
+    "note": "Junção da rua do Monte do Cavalinho com a R. António da Costa Guimarães, junto à linha do comboio, ~80 m a poente da pequena rotunda (opção A, confirmada pela associação)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -8.298213,
+     41.435803
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
     "action": "oneway",
     "name": "Rua do Centro",
     "note": "Sentido único: só se entra a partir da Av. D. João IV (junto à rotunda da estação). Informação local, Set 2026."
@@ -314,8 +329,12 @@
       41.434699
      ],
      [
-      -8.29734,
-      41.43563
+      -8.297489,
+      41.434909
+     ],
+     [
+      -8.298213,
+      41.435803
      ]
     ]
    }

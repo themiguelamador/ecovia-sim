@@ -10,6 +10,8 @@ Feature properties:
   street     modify/remove/oneway: only segments with this street name (a short segment of
              another street within 25 m would otherwise match too)
   name       street name                   (add only)
+A Point feature with action "split" and "street" cuts that street (both directions) at the
+point and makes a junction there, so an added line can end mid-street.
 A Point feature with action "junction" and "type" (a SUMO junction type, e.g.
 "right_before_left") sets the type of the existing junction within 30 m of it.
 "add" line ends snap to an existing junction within 60 m (traced PDM lines are only ~15 m
@@ -100,6 +102,25 @@ def build(net, features):
         nodes.append(f'  <node id="{nid}" x="{x:.2f}" y="{y:.2f}"/>')
         return nid
 
+    # splits first: the junctions they create must exist before lines snap to them
+    for i, f in enumerate(features):
+        pr = f.get("properties") or {}
+        if f["geometry"]["type"] != "Point" or pr.get("action") != "split":
+            continue
+        x, y = net.convertLonLat2XY(*f["geometry"]["coordinates"])
+        cand = [e for e, _ in net.getNeighboringEdges(x, y, 30) if e.getName() == pr["street"]]
+        if not cand:
+            sys.exit(f"feature {i}: {pr['street']} not within 30 m of the split point")
+        nid = f"{PFX}s{i}"
+        for e in {c.getID(): c for c in cand}.values():
+            pos = sumolib.geomhelper.polygonOffsetWithMinimumDistanceToPoint((x, y), e.getShape())
+            if 5 < pos < e.getLength() - 5:
+                edges.append(f'  <edge id="{e.getID()}">\n    <split pos="{pos:.2f}" id="{nid}"/>\n  </edge>')
+        sx, sy = sumolib.geomhelper.positionAtShapeOffset(cand[0].getShape(),
+                                                          sumolib.geomhelper.polygonOffsetWithMinimumDistanceToPoint((x, y), cand[0].getShape()))
+        new_nodes.append((nid, sx, sy))
+        degree[nid] = 2  # a through street: never a loose end
+        print(f"feature {i} (split): {pr['street']} at {nid}")
     for i, f in enumerate(features):
         pr = f.get("properties") or {}
         if f["geometry"]["type"] == "Point":
@@ -198,6 +219,7 @@ if __name__ == "__main__":
     patched = sumolib.net.readNet(out)
     new_ids = {n.split('"')[1] for n in nodes if 'type=' not in n}  # not the retyped junctions
     dead = [e.getID() for e in patched.getEdges()
-            if e.getID().lstrip("-").startswith(PFX) and not e.getIncoming() and e.getFromNode().getID() not in new_ids]
+            if e.getID().lstrip("-").startswith(PFX) and not e.getIncoming() and e.getFromNode().getID() not in new_ids
+            and not e.getFromNode().getID().startswith(f"{PFX}s")]
     if dead:
         sys.exit(f"new edges with no way in: {dead}")
