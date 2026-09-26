@@ -119,6 +119,7 @@ SLOW_FIRST := $(foreach s,$(SCENARIOS),$(if $(findstring via_rapida,$(s))$(finds
 study: $(foreach s,$(SLOW_FIRST),$(foreach k,$(SEEDS),out/$(s)/seed$(k)/tripinfo.xml))
 	$(PY) scripts/export_web.py out web
 	$(PY) scripts/local.py out web/local.json
+	$(PY) scripts/corridors.py out web/corridors.json
 
 run: out/$(SCEN)/seed$(SEED)/tripinfo.xml
 
