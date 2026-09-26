@@ -143,19 +143,21 @@ for s in scen_ids:
         mean[e] = (veh, [round(statistics.fmean(x)) if x else None for x in sp])
     flows[s] = mean
     fc = json.load(open(f"scenarios/{s}.geojson")) if s != "base" else {}
+    ref = fc.get("reference", "base")
     ok = normal[s]
     k = {m: ci([runs[s][sd][m] for sd in ok]) for m in KPI}
     paired = {}
     if s != "base":
         # paired by seed: same random stream in both runs
-        common = sorted(set(runs[s]) & set(runs["base"]))
+        common = sorted(set(runs[s]) & set(runs[ref]))
         for m in KPI:
-            paired[m] = ci([runs[s][sd][m] - runs["base"][sd][m] for sd in common])
-            paired[m]["pct"] = paired[m]["mean"] / statistics.fmean(runs["base"][sd][m] for sd in common) * 100
+            paired[m] = ci([runs[s][sd][m] - runs[ref][sd][m] for sd in common])
+            paired[m]["pct"] = paired[m]["mean"] / statistics.fmean(runs[ref][sd][m] for sd in common) * 100
     meta_scen.append({"id": s, "title": fc.get("title", "Base · rede actual"),
                       "description": fc.get("description", "A rede de hoje, com a procura de 2030 (inclui o Campus da Justiça)."),
                       "elasticity": fc.get("elasticity"), "seeds": len(seeds[s]), "kpi": k, "vs_base": paired,
-                      "gridlock_seeds": len(gridlock[s]), "gridlock_limit": round(limit)})
+                      "gridlock_seeds": len(gridlock[s]), "gridlock_limit": round(limit), "reference": ref if s != "base" else None,
+                      "demand": fc.get("demand", "base")})
 
 # network: base edges that carry traffic in any scenario
 keep = [e for e in base_net.getEdges() if any(sum(flows[s].get(e.getID(), ([0],))[0]) >= 50 for s in scen_ids)]
@@ -182,15 +184,16 @@ for m in meta_scen:
     # excludes zero (0 otherwise), so the difference map does not paint route-choice noise
     dsig = []
     if s != "base":
-        common = sorted(set(per_seed[s]) & set(per_seed["base"]))
+        ref = m["reference"]
+        common = sorted(set(per_seed[s]) & set(per_seed[ref]))
         t = T975.get(len(common), 2.0)
         for e in keep:
             row = []
             for h in range(24):
-                ds = [per_seed[s][k].get(e.getID(), ([0] * 24,))[0][h] - per_seed["base"][k].get(e.getID(), ([0] * 24,))[0][h] for k in common]
-                m = statistics.fmean(ds)
-                half = t * statistics.stdev(ds) / math.sqrt(len(ds)) if len(ds) > 1 else abs(m)
-                row.append(round(m) if abs(m) > half else 0)
+                ds = [per_seed[s][k].get(e.getID(), ([0] * 24,))[0][h] - per_seed[ref][k].get(e.getID(), ([0] * 24,))[0][h] for k in common]
+                mu = statistics.fmean(ds)
+                half = t * statistics.stdev(ds) / math.sqrt(len(ds)) if len(ds) > 1 else abs(mu)
+                row.append(round(mu) if abs(mu) > half else 0)
             dsig.append(row)
     json.dump({"veh": veh, "speed": spd, "new": new_edges, "dsig": dsig}, open(f"{web}/flows/{s}.json", "w"), separators=(",", ":"))
     fcd = f"{out}/{s}/seed1/fcd.xml"
@@ -228,7 +231,7 @@ json.dump({
         "horizon": P["horizon"], "car_share_max": P["car_share_max"], "car_half_km": P["car_half_km"], "occupancy": P["occupancy"],
         "purposes": {k: {x: v[x] for x in ("rate", "producer", "attractor", "out_profile", "back_profile")} for k, v in P["purposes"].items()},
         "profiles": P["profiles"], "corridors": P["corridors"], "corridor_to_city": P["corridor_to_city"],
-        "through_share": P["through_share"], "projects": zones["projects"], "totals": zones["totals"], "trips": zones["trips"],
+        "through_share": P["through_share"], "projects": zones["projects"], "station": zones.get("station"), "developments": json.load(open(f"{out}/zones_urbanizacao.json"))["developments"] if os.path.exists(f"{out}/zones_urbanizacao.json") else [], "totals": zones["totals"], "trips": zones["trips"],
         "entering_per_day": zones["entering_per_day"], "entering_by_corridor": zones["entering_by_corridor"],
         "pdm_entering_2019": 69000, "gates": zones["gates"],
         "zones": [[z["lon"], z["lat"], z["residents"], z["jobs"], z["education"], z["retail"], [a + b for a, b in zip(z["dep"], z["arr"])]] for z in zones["zones"]],

@@ -1,0 +1,18 @@
+{
+ "type": "FeatureCollection",
+ "title": "P2 · Via rápida sem Ecovia + metas do PMUS",
+ "description": "S2 com as metas do PMUS 2030.",
+ "demand": "pmus2030",
+ "reference": "p0_pmus2030",
+ "features": [],
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "kind": "nova",
+   "group": [
+    "circular",
+    "urgezes_main"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,8 @@
+{
+ "type": "FeatureCollection",
+ "title": "P0 · Rede actual + metas do PMUS 2030",
+ "description": "A rede de hoje com a repartição modal que o PMUS de Guimarães fixa para 2030: automóvel de 64% para 40% das deslocações dos residentes. Referência dos cenários P1–P5; comparado com a base mostra o efeito das metas.",
+ "demand": "pmus2030",
+ "reference": "base",
+ "features": []
+}

@@ -1,0 +1,13 @@
+{
+ "type": "FeatureCollection",
+ "title": "U0 · Rede actual + urbanização",
+ "description": "A rede de hoje com os novos fogos (Costa, Hotel de Guimarães, Monte do Cavalinho), o novo Centro de Saúde e as ruas do Cavalinho. Referência dos cenários U1–U5; comparado com a base de hoje mostra o efeito da própria urbanização.",
+ "demand": "urbanizacao",
+ "reference": "base",
+ "include": [
+  {
+   "file": "../data/urbanizacao.geojson"
+  }
+ ],
+ "features": []
+}

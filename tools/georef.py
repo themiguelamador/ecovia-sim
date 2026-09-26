@@ -68,8 +68,8 @@ MAIN_ROADS = [
     ("circular", "Ligação Parque da Cidade – Circular urbana",
      [(1043, 285), (1015, 165), (1017, 72)]),   # Parque da Cidade -> roundabout -> Circular interchange
     # --- other links to Urgezes that can be read in the image
-    ("urgezes", "Ligações Centro cidade – Urgezes",
-     [(500, 772), (507, 745), (545, 768), (585, 682)]),   # V-shaped link west of the D. João IV roundabout
+    # The V-shaped red line west of the D. João IV roundabout, (500,772)-(507,745)-(545,768)-(585,682),
+    # is left out: per the association, the PDM links the roundabout to Urgezes by the main street only.
     ("urgezes", "Ligações Centro cidade – Urgezes",
      [(617, 818), (565, 858)]),                 # diagonal from an existing junction, joining the main Urgezes link
     ("urgezes", "Ligações Centro cidade – Urgezes",

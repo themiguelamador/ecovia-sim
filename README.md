@@ -80,12 +80,16 @@ copia-se para `sites/ecovia/public/simulacao/data/` no repositório do site.
 |---|---|
 | base | rede actual, procura 2030 com o Campus da Justiça |
 | s1_ecovia | ligação D. João IV – Parque da Cidade (sobre a Ecovia) |
-| s2_circular | ligação Parque da Cidade – Circular urbana |
+| s2_via_rapida | ligação Av. D. João IV – Urgezes à via rápida, sem a via da Ecovia |
 | s3_ecovia_circular | as duas: eixo contínuo da estação à Circular |
 | s4_pdm_sem_ecovia | todas as vias novas do PDM excepto a da Ecovia |
 | s5_pdm_completo | todas as vias novas do PDM |
 | *_induzida | S3 e S5 com procura induzida (elasticidade −0,5) |
-| example_avenida_30 | exemplo de `modify` (fora do estudo: não começa por `s`) |
+| u0_base_urbanizacao | rede actual + urbanização: lotes vazios da Costa, junto ao Hotel de Guimarães e do Monte do Cavalinho com prédios de 4–5 andares (~1 100 fogos), novo Centro de Saúde, ruas do Cavalinho (`data/urbanizacao.geojson`); comparado com a base |
+| u1…u5 | S1–S5 com a urbanização; comparados com U0 (campo `reference`) |
+| p0_pmus2030 | rede actual com a meta do PMUS de Guimarães para 2030: automóvel de 64% para 40% das deslocações dos residentes (`[variants.pmus2030]` em `params.toml`); comparado com a base |
+| p1, p2, p5 | S1, S2 e S5 com essa meta; comparados com P0 |
+| example_avenida_30 | exemplo de `modify` (fora do estudo: não começa por `s` nem `u`) |
 
 6. **Resultados** (`scripts/export_web.py`). Indicadores por cenário com intervalo de 95% sobre as
    diferenças emparelhadas por semente, fluxos horários por rua, uso das vias novas, trajectos
@@ -103,8 +107,20 @@ são estimativas da literatura, não medições em Guimarães. Antes de publicar
 2. **Tempos de percurso.** Comparar a duração de alguns percursos na hora de ponta com
    Google Maps / TomTom.
 3. **Rede.** Rever no `netedit` o número de vias, as viragens proibidas e os planos
-   semafóricos nos cruzamentos principais. Os ~650 "teleportes" por bloqueio de mudança de
-   via no cenário base são quase sempre erros de vias no OSM.
+   semafóricos nos cruzamentos principais. Para encontrar erros de vias: correr um dia sem `--no-warnings` e contar os
+   teleportes "wrong lane" por cruzamento. Já corrigido: viagens com origem ou destino em
+   ruas sem ligação à rede (85% desses teleportes; `demand.py` só usa ruas de onde se sai e
+   onde se chega) e o entrecruzamento na Alameda Mariano Felgueiras
+   (`data/corrections.con.xml`, onde se juntam as próximas correcções de ligações).
+
+   Comportamento dos condutores (`vtypes.add.xml`): com os valores por omissão do SUMO,
+   os carros esperavam indefinidamente por um intervalo nas rotundas e ~4% das viagens
+   eram teleportadas. Com impaciência (30 s), intervalo mínimo de 0,6 s ao entrar de uma
+   via secundária e mudanças de via mais assertivas, os teleportes caem de ~6 000–9 800
+   para ~2 000–2 400 por dia (3 sementes da base), sem mais colisões nem tempos de
+   viagem implausíveis. Limite de teleporte: 120 s. Com 300 s testado em 3 dias da base,
+   nenhum recuperou da ponta da manhã (o SUMO não desfaz certos bloqueios circulares e o
+   congestionamento espalha-se pela rede); com 120 s, os 3 recuperaram.
 4. **Premissas marcadas ASSUMPTION** em `params.toml` (dimensão do Campus da Justiça, do
    hospital, de Azurém) — substituir por números oficiais.
 

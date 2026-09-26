@@ -61,9 +61,11 @@ for i, (name, lon, lat, r) in enumerate(AREAS):
     row = {"area": name, "lonlat": [lon, lat], "radius_m": r, "trips": round(statistics.fmean(v[1][i] for v in res["base"].values())),
            "base_min": statistics.fmean(base), "scenarios": {}}
     for s in scens[1:]:
-        seeds = sorted(set(res[s]) & set(res["base"]))
-        d = ci([res[s][k][0][i] - res["base"][k][0][i] for k in seeds])
-        d["pct"] = d["mean"] / row["base_min"] * 100
+        ref = json.load(open(f"scenarios/{s}.geojson")).get("reference", "base")
+        seeds = sorted(set(res[s]) & set(res[ref]))
+        d = ci([res[s][k][0][i] - res[ref][k][0][i] for k in seeds])
+        d["pct"] = d["mean"] / statistics.fmean(res[ref][k][0][i] for k in seeds) * 100
+        d["ref"] = ref
         row["scenarios"][s] = d
     out.append(row)
 json.dump(out, open(out_json, "w"), ensure_ascii=False, indent=1)

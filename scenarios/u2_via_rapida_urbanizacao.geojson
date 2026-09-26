@@ -1,0 +1,21 @@
+{
+ "type": "FeatureCollection",
+ "title": "U2 · Via rápida sem Ecovia + urbanização",
+ "description": "S2 com a urbanização.",
+ "demand": "urbanizacao",
+ "reference": "u0_base_urbanizacao",
+ "include": [
+  {
+   "file": "../data/urbanizacao.geojson"
+  },
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "circular",
+    "urgezes_main"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}

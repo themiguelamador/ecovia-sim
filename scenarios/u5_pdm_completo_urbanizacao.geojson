@@ -1,0 +1,24 @@
+{
+ "type": "FeatureCollection",
+ "title": "U5 · PDM completo + urbanização",
+ "description": "S5 com a urbanização.",
+ "demand": "urbanizacao",
+ "reference": "u0_base_urbanizacao",
+ "include": [
+  {
+   "file": "../data/urbanizacao.geojson"
+  },
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "ecovia",
+    "circular",
+    "urgezes_main",
+    "urgezes",
+    "outras"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}

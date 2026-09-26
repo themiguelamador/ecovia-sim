@@ -1,0 +1,23 @@
+{
+ "type": "FeatureCollection",
+ "title": "U4 · PDM sem Ecovia + urbanização",
+ "description": "S4 com a urbanização.",
+ "demand": "urbanizacao",
+ "reference": "u0_base_urbanizacao",
+ "include": [
+  {
+   "file": "../data/urbanizacao.geojson"
+  },
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "circular",
+    "urgezes_main",
+    "urgezes",
+    "outras"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}

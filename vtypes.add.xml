@@ -1,9 +1,15 @@
 <additional>
+    <!-- Driver behaviour tuned to local practice (SUMO's defaults are too timid: cars wait
+         forever for a gap at roundabouts and priority junctions and must be teleported).
+         impatience: a driver who has waited (time-to-impatience option) accepts smaller gaps;
+         jmTimegapMinor: gap accepted when entering from a minor road (default 1 s);
+         lcAssertive / lcImpatience: pushes into the lane it needs before a turn. -->
+    <vType id="DEFAULT_VEHTYPE" impatience="1" jmTimegapMinor="0.6" lcAssertive="2" lcImpatience="0.5"/>
     <!-- buses (GTFS) and delivery vans: always recorded in fcd.xml for the web animation -->
-    <vType id="bus" vClass="bus">
+    <vType id="bus" vClass="bus" impatience="1" jmTimegapMinor="0.6" lcAssertive="2" lcImpatience="0.5">
         <param key="has.fcd.device" value="true"/>
     </vType>
-    <vType id="delivery" vClass="delivery" length="7">
+    <vType id="delivery" vClass="delivery" length="7" impatience="1" jmTimegapMinor="0.6" lcAssertive="2" lcImpatience="0.5">
         <param key="has.fcd.device" value="true"/>
     </vType>
 </additional>

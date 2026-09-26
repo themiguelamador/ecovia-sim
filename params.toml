@@ -12,7 +12,7 @@ zone_size_m = 400            # grid cell size for inner zones
 # 15.3% walking/cycling. With these values a 3 km trip is ~72% car, a 500 m trip ~26%.
 car_share_max = 0.78
 car_half_km = 1.2
-occupancy = 1.3              # people per car (escort trips, car-sharing)
+occupancy = 1.6              # people per car: PMUS de Guimarães (2018), Tabela 5 (2015 value)
 
 # --- external demand (people from outside the study area) ----------------------------
 # Residents of the rest of the municipality (INE census) are routed through the nearest
@@ -59,6 +59,18 @@ delivery_stop_s = [180, 600]
 # the lane at each stop (no bays), 20 s minimum. Intermunicipal lines (Transdev etc.) have no
 # public GTFS and are not simulated.
 gtfs_date = "20261007"
+
+# urbanização variant (see [[developments]] at the end)
+persons_per_dwelling = 2.5     # Census 2021, Guimarães
+dwellings_per_ha = 144         # 4-5 storey blocks: 40% of the lot built x 4.5 storeys x 80% usable / 100 m2
+
+# Guimarães railway station (OSM node 3941781457): cars that come for the train.
+# ASSUMPTIONS until someone counts the station car park on a weekday.
+[station]
+lon = -8.2943
+lat = 41.4351
+park_and_ride = 350          # cars parked for the day: arrive 6-9h, leave 17-20h
+kiss_and_ride = 200          # drop-offs or pick-ups: to the station and straight back
 
 # --- trip generation -------------------------------------------------------------
 # Trips per resident per day by purpose (all modes). IMob 2017 (INE): ~2.7 trips/person/day
@@ -182,3 +194,62 @@ shopping_back = [0,0,0,0,0,0,0,0,1,3,7,10,10,6,5,7,9,10,11,10,6,3,2,1]
 midday        = [0,0,0,0,0,0,0,1,2,5,8,9,14,12,8,7,6,5,4,3,2,1,0,0]
 through       = [1,1,1,1,1,2,4,7,8,6,5,5,5,5,5,6,7,8,7,5,3,2,2,1]
 deliveries    = [0,0,0,0,0,0,2,8,14,16,14,10,6,4,5,5,4,3,2,1,0,0,0,0]
+
+# --- urbanização (extra scenarios u0-u5) ------------------------------------------------
+# New homes on today's empty lots, the new health centre and the Monte do Cavalinho
+# development. Used only by the demand variant "urbanizacao" (demand.py --variant).
+# Density rule (from the association: empty lots along the streets are for 4-5 storey
+# buildings): 40% of the lot built, 4.5 storeys, 80% usable, 100 m2 per home
+# -> ~144 homes per hectare of lot. Persons per home: 2.5 (Census 2021, Guimarães).
+# Lot areas were read on satellite imagery (Esri, 2026); all ASSUMPTIONS, correct freely.
+
+[[developments]]
+name = "Monte do Cavalinho (Endutex): habitação"
+lon = -8.2950
+lat = 41.4340
+lot_ha = 2.8                 # mostly housing: the 5 housing lots (2.3 ha) + the non-supermarket lots, only partly buildable (cliff)
+[[developments]]
+name = "Monte do Cavalinho (Endutex): supermercado"
+lon = -8.2940
+lat = 41.4348
+jobs = 50                    # at most, per the association: the jobs are a supermarket
+retail = 15                  # same weight as any supermarket in the model (params: shop=supermarket)
+[[developments]]
+name = "Quarteirão junto ao Hotel de Guimarães"
+lon = -8.2968
+lat = 41.4370
+lot_ha = 2.0
+retail = 8                   # shops on the ground floor
+jobs = 40
+[[developments]]
+name = "Costa: lotes entre as torres"
+lon = -8.2825
+lat = 41.4432
+lot_ha = 1.2
+[[developments]]
+name = "Costa: lote terraplenado"
+lon = -8.2797
+lat = 41.4424
+lot_ha = 0.5
+[[developments]]
+name = "Costa: campo a sudoeste"
+lon = -8.2882
+lat = 41.4384
+lot_ha = 1.8
+[[developments]]
+name = "Centro de Saúde da Encosta da Penha (2026)"
+lon = -8.2727
+lat = 41.4490                # Rua Jaime Martins, beside the Campus da Justiça
+jobs = 120                   # ~5 600 m2 building (13.6 M EUR at 2 442 EUR/m2); USF, public health, diagnostics, SAP
+retail = 35                  # ~1 000 visits a day
+
+# --- demand variants ------------------------------------------------------------------
+# [variants.<name>] overrides the keys above for demand.py <...> <name> (scenarios with
+# "demand": "<name>"). Differences are measured against the variant's own p0/u0 reference.
+
+# PMUS de Guimarães (2018), Tabela 5: targets for 2030 of the resident population's trips,
+# car 64% -> 40% (walk 23 -> 30%, public transport 12 -> 22%, bicycle 0.1 -> 7%).
+# Scaling the car share of every distance by 40/64 reaches the target; the other modes are
+# not simulated as vehicles, except walking.
+[variants.pmus2030]
+car_share_max = 0.48         # 0.78 x 40/65: the model gives 65% today (PMUS: 64%), this gives 40%

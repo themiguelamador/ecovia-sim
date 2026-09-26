@@ -1,0 +1,20 @@
+{
+ "type": "FeatureCollection",
+ "title": "U1 · Via sobre a Ecovia + urbanização",
+ "description": "S1 com a urbanização.",
+ "demand": "urbanizacao",
+ "reference": "u0_base_urbanizacao",
+ "include": [
+  {
+   "file": "../data/urbanizacao.geojson"
+  },
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "ecovia"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}

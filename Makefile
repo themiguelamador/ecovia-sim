@@ -5,7 +5,8 @@
 SCEN ?= base
 SEED ?= 1
 SEEDS := 1 2 3 4 5
-SCENARIOS := base $(sort $(basename $(notdir $(wildcard scenarios/s*.geojson))))
+SCENARIOS := base $(sort $(basename $(notdir $(wildcard scenarios/s*.geojson scenarios/u*.geojson scenarios/p*.geojson))))
+DEMANDS := urbanizacao pmus2030
 # study area: the whole city inside the Circular (EN101/EN105/EN206), as in the PDM image
 BBOX := -8.325,41.415,-8.243,41.465
 export SUMO_HOME := $(shell uv run python -c "import sumo; print(sumo.SUMO_HOME)")
@@ -51,8 +52,9 @@ out/crossed.net.xml: out/osm.net.xml data/gmr.osm.xml.gz scripts/crossings.py
 	$(BIN)/netconvert --sumo-net-file out/osm.net.xml -e out/crossings.edg.xml -x out/crossings.con.xml -o $@ --no-warnings
 
 # local knowledge the OSM data gets wrong (one-way streets, ...): data/corrections.geojson
-out/base.net.xml: out/crossed.net.xml data/corrections.geojson scripts/scenario.py
-	$(PY) scripts/scenario.py out/crossed.net.xml data/corrections.geojson $@
+out/base.net.xml: out/crossed.net.xml data/corrections.geojson data/corrections.con.xml scripts/scenario.py
+	$(PY) scripts/scenario.py out/crossed.net.xml data/corrections.geojson out/corrected.net.xml
+	$(BIN)/netconvert --sumo-net-file out/corrected.net.xml -x data/corrections.con.xml -o $@ --no-warnings
 
 # Guimabus timetable for one weekday, mapped onto the base network (same edges in every scenario)
 out/bus.rou.xml out/stops.add.xml &: out/base.net.xml data/gtfs/guimabus_gtfs_2026.zip params.toml
@@ -61,7 +63,7 @@ out/bus.rou.xml out/stops.add.xml &: out/base.net.xml data/gtfs/guimabus_gtfs_20
 	  --modes bus --bbox $(BBOX) --duration 20 --route-output out/bus.rou.xml --additional-output out/stops.add.xml \
 	  --vtype-output out/gtfs-vtypes.xml --fcd out/gtfs-fcd --gpsdat out/gtfs-gpsdat
 
-out/%.net.xml: scenarios/%.geojson out/base.net.xml scripts/scenario.py data/pdm/tracado.geojson
+out/%.net.xml: scenarios/%.geojson out/base.net.xml scripts/scenario.py data/pdm/tracado.geojson data/urbanizacao.geojson
 	$(PY) scripts/scenario.py out/base.net.xml $< $@
 
 # --- demand ----------------------------------------------------------------------------
@@ -70,7 +72,12 @@ out/%.net.xml: scenarios/%.geojson out/base.net.xml scripts/scenario.py data/pdm
 out/trips.xml out/zones.json &: out/base.net.xml data/census.csv data/gmr.osm.xml.gz params.toml scripts/demand.py
 	$(PY) scripts/demand.py out/base.net.xml data/census.csv data/gmr.osm.xml.gz params.toml out/trips.xml out/zones.json
 
-out/%.trips.xml: out/trips.xml out/%.net.xml scripts/induce.py
+# the same demand plus the new homes, health centre and Monte do Cavalinho (scenarios u*)
+# demand variants (a pattern rule with two targets runs once for both, also in make 3.81)
+out/trips_%.xml out/zones_%.json: out/base.net.xml data/census.csv data/gmr.osm.xml.gz params.toml scripts/demand.py
+	$(PY) scripts/demand.py out/base.net.xml data/census.csv data/gmr.osm.xml.gz params.toml out/trips_$*.xml out/zones_$*.json $*
+
+out/%.trips.xml: out/trips.xml $(DEMANDS:%=out/trips_%.xml) out/%.net.xml scripts/induce.py
 	$(PY) scripts/induce.py out/trips.xml out/base.net.xml out/$*.net.xml $(wildcard scenarios/$*.geojson) $@
 
 # --- simulation ------------------------------------------------------------------------
@@ -83,7 +90,7 @@ out/%.trips.xml: out/trips.xml out/%.net.xml scripts/induce.py
 # records 12% of cars, every bus and van, every 2 s from 7:00 (fcd.xml) for the web animation.
 SIM := --begin 0 --end 90000 --device.rerouting.probability 1 --device.rerouting.period 120 \
   --device.rerouting.adaptation-steps 18 --routing-algorithm astar --device.emissions.probability 1 \
-  --time-to-teleport 120 --max-depart-delay 900 --ignore-route-errors --no-step-log --no-warnings \
+  --time-to-teleport 120 --time-to-impatience 30 --max-depart-delay 900 --ignore-route-errors --no-step-log --no-warnings \
   --duration-log.statistics --pedestrian.model striping --tripinfo-output.write-unfinished \
   --ignore-junction-blocker 20
 FCD := --fcd-output fcd.xml --fcd-output.geo --fcd-output.attributes x,y,speed,type \
@@ -97,7 +104,11 @@ out/$(1)/seed$(2)/tripinfo.xml: out/$(1).net.xml out/$(1).trips.xml out/bus.rou.
 endef
 $(foreach s,$(SCENARIOS),$(foreach k,$(SEEDS),$(eval $(call RUN,$(s),$(k)))))
 
-study: $(foreach s,$(SCENARIOS),$(foreach k,$(SEEDS),out/$(s)/seed$(k)/tripinfo.xml))
+# make -j starts runs in this order: scenarios with the Urgezes link (the ones prone to
+# gridlock days, 2-4x slower) go first, so a slow run doesn't start last and hold up the end
+SLOW_FIRST := $(foreach s,$(SCENARIOS),$(if $(findstring via_rapida,$(s))$(findstring pdm_,$(s)),$(s))) \
+  $(foreach s,$(SCENARIOS),$(if $(findstring via_rapida,$(s))$(findstring pdm_,$(s)),,$(s)))
+study: $(foreach s,$(SLOW_FIRST),$(foreach k,$(SEEDS),out/$(s)/seed$(k)/tripinfo.xml))
 	$(PY) scripts/export_web.py out web
 	$(PY) scripts/local.py out web/local.json
 

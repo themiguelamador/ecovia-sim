@@ -1,0 +1,110 @@
+{
+ "type": "FeatureCollection",
+ "description": "Ruas da urbanização do Monte do Cavalinho, já construídas mas ausentes do OpenStreetMap (Set 2026). Traçadas sobre imagem de satélite Esri; 1 via por sentido, 50 km/h.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Monte do Cavalinho (ruas da urbanização)",
+    "note": "ligação à rotunda da Av. D. João IV"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.292618,
+      41.434699
+     ],
+     [
+      -8.293583,
+      41.434675
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Monte do Cavalinho (ruas da urbanização)",
+    "note": "eixo até à rotunda junto à linha do comboio"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.293583,
+      41.434675
+     ],
+     [
+      -8.295944,
+      41.434732
+     ],
+     [
+      -8.296909,
+      41.434997
+     ],
+     [
+      -8.297714,
+      41.435134
+     ],
+     [
+      -8.297875,
+      41.435399
+     ],
+     [
+      -8.297499,
+      41.435665
+     ],
+     [
+      -8.297231,
+      41.435721
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "name": "Monte do Cavalinho (ruas da urbanização)",
+    "note": "anel a sul dos lotes"
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.293583,
+      41.434675
+     ],
+     [
+      -8.293691,
+      41.434152
+     ],
+     [
+      -8.293852,
+      41.433429
+     ],
+     [
+      -8.293905,
+      41.432906
+     ],
+     [
+      -8.293583,
+      41.433187
+     ],
+     [
+      -8.293047,
+      41.433831
+     ],
+     [
+      -8.292671,
+      41.434474
+     ],
+     [
+      -8.292618,
+      41.434699
+     ]
+    ]
+   }
+  }
+ ]
+}

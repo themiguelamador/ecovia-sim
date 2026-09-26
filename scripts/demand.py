@@ -6,7 +6,9 @@ The walked share of short trips becomes pedestrians (they use the crossings); ca
 park on local streets stop in the lane to manoeuvre and pull out from standstill; delivery
 vans double-park at shops. Buses come from the GTFS (Makefile), not from here.
 
-usage: demand.py NET CENSUS OSM PARAMS OUT_TRIPS OUT_ZONES_JSON
+usage: demand.py NET CENSUS OSM PARAMS OUT_TRIPS OUT_ZONES_JSON [urbanizacao]
+With "urbanizacao", the [[developments]] of params.toml (new homes, health centre, Monte do
+Cavalinho) are added to the demand.
 """
 import csv
 import gzip
@@ -23,7 +25,9 @@ sys.path.append(os.path.join(os.environ["SUMO_HOME"], "tools"))
 import sumolib  # noqa: E402
 
 net_file, census_file, osm_file, params_file, trips_out, zones_out = sys.argv[1:7]
+variant = sys.argv[7] if len(sys.argv) > 7 else None
 P = tomllib.load(open(params_file, "rb"))
+P.update(P.get("variants", {}).get(variant, {}))  # [variants.<name>] overrides, e.g. pmus2030
 rng = random.Random(P["seed"])
 net = sumolib.net.readNet(net_file)
 xmin, ymin, xmax, ymax = net.getBoundary()
@@ -38,10 +42,37 @@ def base_type(e):
     return e.getType().split("|")[0]
 
 
+def car_connected():
+    """edges a car can both leave (towards the main network) and reach: a trip starting or
+    ending on a street cut off from it (dead-end fragments, one-way stubs) is impossible
+    and SUMO ends up teleporting it"""
+    car = [e for e in net.getEdges() if e.allows("passenger")]
+    succ = {e: [c.getTo() for l in e.getLanes() if l.allows("passenger") for c in l.getOutgoing()] for e in car}
+    pred = {e: [] for e in car}
+    for e, ts in succ.items():
+        for t in ts:
+            if t in pred:
+                pred[t].append(e)
+
+    def reach(start, nb):
+        seen, st = {start}, [start]
+        while st:
+            for n in nb.get(st.pop(), []):
+                if n not in seen:
+                    seen.add(n)
+                    st.append(n)
+        return seen
+    hub = max(car, key=lambda e: e.getLength() * e.getLaneNumber())
+    return reach(hub, succ) & reach(hub, pred)
+
+
+CONNECTED = car_connected()
+
+
 def nearest_edge(x, y, r=300):
     best = None
     for e, d in net.getNeighboringEdges(x, y, r):
-        if e.allows("passenger") and base_type(e) not in NO_HOME and (best is None or d < best[1]):
+        if e in CONNECTED and base_type(e) not in NO_HOME and (best is None or d < best[1]):
             best = (e, d)
     return best and best[0]
 
@@ -140,6 +171,20 @@ for p in projects:
     for attr in ("jobs", "education", "retail"):
         add(*p["xy"], attr, p.get(attr, 0))
 
+developments = []
+if variant == "urbanizacao":
+    # age shares of the new residents = those of the study area today
+    tot_now = {a: sum(z.a[a] for z in zones.values() if not z.outer) for a in ("residents", "age_0_24", "age_25_64")}
+    for d in P["developments"]:
+        x, y = net.convertLonLat2XY(d["lon"], d["lat"])
+        homes = d.get("lot_ha", 0) * P["dwellings_per_ha"]
+        people = homes * P["persons_per_dwelling"]
+        for attr in ("residents", "age_0_24", "age_25_64"):
+            add(x, y, attr, people * tot_now[attr] / tot_now["residents"])
+        for attr in ("jobs", "education", "retail"):
+            add(x, y, attr, d.get(attr, 0))
+        developments.append(dict(d, dwellings=round(homes), residents=round(people)))
+
 inner = [z for z in zones.values() if not z.outer]
 # Outside the study area we only know residents; estimate their jobs/retail/education from
 # the inner ratio times `outside_activity` (the city centre concentrates activity).
@@ -220,6 +265,7 @@ def pcar(km):
 
 
 zl = list(zones.values())
+person_trips = [0.0, 0.0]  # all modes, by car: the modal split to compare with the PMUS
 for name, p in P["purposes"].items():
     for o in zl:
         prod = o.a[p["producer"]] * p["rate"] * P["scale"]
@@ -234,6 +280,8 @@ for name, p in P["purposes"].items():
             if o.outer and d.outer or wd <= 0:
                 continue  # ponytail: outer->outer trips never enter the study area
             people = prod * wd / sw
+            person_trips[0] += people
+            person_trips[1] += people * pcar(km)
             n = stochastic_round(people * pcar(km) / P["occupancy"])
             emit(o, d, p["producer"], p["attractor"], n, p["out_profile"])
             if p["back_profile"]:
@@ -243,6 +291,28 @@ for name, p in P["purposes"].items():
                 emit_walk(o, d, p["producer"], p["attractor"], nw, p["out_profile"])
                 if p["back_profile"]:
                     emit_walk(d, o, p["attractor"], p["producer"], nw, p["back_profile"])
+
+# railway station: commuters who drive to the train (park in the morning, leave in the evening)
+# and drop-offs/pick-ups (there and straight back). Origins weighted by residents x car share.
+st = P["station"]
+sx, sy = net.convertLonLat2XY(st["lon"], st["lat"])
+st_edge = nearest_edge(sx, sy).getID()
+st_w = [z.a["residents"] * pcar(max(math.hypot(z.x - sx, z.y - sy), Z / 2) / 1000) for z in zl]
+
+
+def station_trip(profile):
+    h = rng.choices(range(24), weights=PROF[profile])[0]
+    return h * 3600 + rng.random() * 3600
+
+
+for z in rng.choices(zl, weights=st_w, k=stochastic_round(st["park_and_ride"] * P["scale"])):
+    home_out, home_in = pick_edge(z, "residents", False), pick_edge(z, "residents", True)
+    trips.append((station_trip("am_commute"), home_out, st_edge))
+    trips.append((station_trip("pm_commute"), st_edge, home_in))
+for z in rng.choices(zl, weights=st_w, k=stochastic_round(st["kiss_and_ride"] * P["scale"])):
+    t = station_trip(rng.choice(["am_commute", "pm_commute"]))
+    trips.append((t, pick_edge(z, "residents", False), st_edge))
+    trips.append((t + 300 + rng.random() * 600, st_edge, pick_edge(z, "residents", True)))
 
 # inter-municipal traffic: each PDM corridor's volume split between the gates facing it
 corr = P["corridors"]
@@ -334,8 +404,9 @@ json.dump(dict(
     entering_per_day=sum(entering.values()), entering_by_corridor=dict(entering),
     gates=[{"lonlat": [round(v, 5) for v in net.convertXY2LonLat(g["x"], g["y"])], **{k: g[k] for k in ("node", "type", "corridor")},
             "daily_in": round(g["daily_in"])} for g in gates],
-    projects=[{k: p[k] for k in p if k != "xy"} for p in projects]), open(zones_out, "w"), ensure_ascii=False)
+    projects=[{k: p[k] for k in p if k != "xy"} for p in projects], developments=developments, station=st), open(zones_out, "w"), ensure_ascii=False)
 print(f"{len(walks)} walks, {len(deliveries)} deliveries ({sum(1 for d in deliveries if d[3])} double-parked)")
+print(f"car share of resident trips: {person_trips[1] / person_trips[0]:.0%} (PMUS 2018: 64%)")
 print(f"{len(trips)} car trips, {len(inner)} inner zones, {len(zl) - len(inner)} outer zones, {len(gates)} gates; "
       + ", ".join(f"{a}={tot[a]:.0f}" for a in ATTRS))
 print(f"vehicles entering the study area per day: {sum(entering.values())} (PDM: ~69 000 in 2019, up to ~100 000) "

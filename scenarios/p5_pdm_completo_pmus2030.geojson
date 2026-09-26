@@ -1,0 +1,21 @@
+{
+ "type": "FeatureCollection",
+ "title": "P5 · PDM completo + metas do PMUS",
+ "description": "S5 com as metas do PMUS 2030.",
+ "demand": "pmus2030",
+ "reference": "p0_pmus2030",
+ "features": [],
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "kind": "nova",
+   "group": [
+    "ecovia",
+    "circular",
+    "urgezes_main",
+    "urgezes",
+    "outras"
+   ]
+  }
+ ]
+}

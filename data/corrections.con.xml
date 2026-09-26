@@ -1,0 +1,9 @@
+<!-- Lane connections the OSM import gets wrong, applied to the base network (every scenario).
+     Found by ranking "wrong lane" teleports per junction (see README, calibration). -->
+<connections>
+    <!-- Alameda Mariano Felgueiras before the slip road to the via rápida: the side road (1 lane)
+         only fed the slip lane and the main road only the straight lanes, leaving 20 m to weave.
+         Let each approach reach both. -->
+    <connection from="518870790" to="518870789" fromLane="1" toLane="1"/>
+    <connection from="113280521" to="518870789" fromLane="1" toLane="2"/>
+</connections>

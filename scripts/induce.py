@@ -50,7 +50,10 @@ def times_from(net, src):
 if __name__ == "__main__":
     base_trips, base_net, scen_net = sys.argv[1:4]
     scen_file, out = (sys.argv[4], sys.argv[5]) if len(sys.argv) == 6 else (None, sys.argv[4])
-    e = json.load(open(scen_file)).get("elasticity") if scen_file else None
+    spec = json.load(open(scen_file)) if scen_file else {}
+    if spec.get("demand"):  # scenarios built on a demand variant (urbanizacao, pmus2030)
+        base_trips = base_trips.replace("trips.xml", f"trips_{spec['demand']}.xml")
+    e = spec.get("elasticity")
     if not e:
         shutil.copyfile(base_trips, out)
         sys.exit()

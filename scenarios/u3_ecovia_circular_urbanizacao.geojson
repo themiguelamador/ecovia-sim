@@ -1,0 +1,21 @@
+{
+ "type": "FeatureCollection",
+ "title": "U3 · Ecovia + Circular + urbanização",
+ "description": "S3 com a urbanização.",
+ "demand": "urbanizacao",
+ "reference": "u0_base_urbanizacao",
+ "include": [
+  {
+   "file": "../data/urbanizacao.geojson"
+  },
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "ecovia",
+    "circular"
+   ],
+   "kind": "nova"
+  }
+ ],
+ "features": []
+}
