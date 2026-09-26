@@ -195,6 +195,15 @@ midday        = [0,0,0,0,0,0,0,1,2,5,8,9,14,12,8,7,6,5,4,3,2,1,0,0]
 through       = [1,1,1,1,1,2,4,7,8,6,5,5,5,5,5,6,7,8,7,5,3,2,2,1]
 deliveries    = [0,0,0,0,0,0,2,8,14,16,14,10,6,4,5,5,4,3,2,1,0,0,0,0]
 
+# --- built after the 2021 census (every scenario) ------------------------------------
+# The census misses homes finished since 2021. `dwellings` placed like [[developments]].
+[[recent]]
+name = "Zona do Campus da Justiça: construção recente (depois dos Censos 2021)"
+lon = -8.2737
+lat = 41.4478
+dwellings = 2000             # at least, per the association; exact buildings unknown
+radius_m = 600               # spread over the Encosta da Penha / Parque da Cidade area
+
 # --- urbanização (extra scenarios u0-u5) ------------------------------------------------
 # New homes on today's empty lots, the new health centre and the Monte do Cavalinho
 # development. Used only by the demand variant "urbanizacao" (demand.py --variant).
@@ -203,6 +212,12 @@ deliveries    = [0,0,0,0,0,0,2,8,14,16,14,10,6,4,5,5,4,3,2,1,0,0,0,0]
 # -> ~144 homes per hectare of lot. Persons per home: 2.5 (Census 2021, Guimarães).
 # Lot areas were read on satellite imagery (Esri, 2026); all ASSUMPTIONS, correct freely.
 
+[[developments]]
+name = "Zona do Campus da Justiça: terrenos urbanizados"
+lon = -8.2737
+lat = 41.4478
+dwellings = 1200             # per the association: the urbanized plots around the Campus will be built up
+radius_m = 600               # exact lots unknown: spread over the Encosta da Penha / Parque da Cidade area
 [[developments]]
 name = "Monte do Cavalinho (Endutex): habitação"
 lon = -8.2950
@@ -243,6 +258,21 @@ lat = 41.4490                # Rua Jaime Martins, beside the Campus da Justiça
 jobs = 120                   # ~5 600 m2 building (13.6 M EUR at 2 442 EUR/m2); USF, public health, diagnostics, SAP
 retail = 35                  # ~1 000 visits a day
 
+# --- new bus lines (scenarios with "bus_lines", scripts/busline.py) -------------------
+[bus]
+first_h = 7
+last_h = 21
+peak_hours = [[7, 10], [16, 20]]
+peak_headway_min = 15
+offpeak_headway_min = 30
+stop_spacing_m = 400
+dwell_s = 20
+# ASSUMPTION: share of the car trips starting or ending near a new stop that move to the bus.
+# A new line every 15-30 min is a modest offer; 10% is deliberately prudent.
+mode_shift = 0.10
+mode_shift_radius_m = 400
+new_coverage_m = 300          # only stops farther than this from a Guimabus stop count (new coverage)
+
 # --- demand variants ------------------------------------------------------------------
 # [variants.<name>] overrides the keys above for demand.py <...> <name> (scenarios with
 # "demand": "<name>"). Differences are measured against the variant's own p0/u0 reference.
@@ -253,3 +283,8 @@ retail = 35                  # ~1 000 visits a day
 # not simulated as vehicles, except walking.
 [variants.pmus2030]
 car_share_max = 0.48         # 0.78 x 40/65: the model gives 65% today (PMUS: 64%), this gives 40%
+
+# Today (2026): the Campus da Justiça (2029) is not built yet. Scenario h0 compares it with
+# the base, which shows what the Campus adds.
+[variants.hoje]
+horizon = 2026

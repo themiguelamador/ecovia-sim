@@ -171,19 +171,29 @@ for p in projects:
     for attr in ("jobs", "education", "retail"):
         add(*p["xy"], attr, p.get(attr, 0))
 
-developments = []
-if variant == "urbanizacao":
-    # age shares of the new residents = those of the study area today
-    tot_now = {a: sum(z.a[a] for z in zones.values() if not z.outer) for a in ("residents", "age_0_24", "age_25_64")}
-    for d in P["developments"]:
-        x, y = net.convertLonLat2XY(d["lon"], d["lat"])
-        homes = d.get("lot_ha", 0) * P["dwellings_per_ha"]
-        people = homes * P["persons_per_dwelling"]
+# age shares of new residents = those of the study area in the census
+tot_now = {a: sum(z.a[a] for z in zones.values() if not z.outer) for a in ("residents", "age_0_24", "age_25_64")}
+
+
+def build(d):
+    """homes and activities of one development; `radius_m` spreads them over a 100 m grid
+    (an area whose exact lots are unknown), otherwise they sit at the point"""
+    x0, y0 = net.convertLonLat2XY(d["lon"], d["lat"])
+    r = d.get("radius_m", 0)
+    pts = [(x0 + i, y0 + j) for i in range(-r, r + 1, 100) for j in range(-r, r + 1, 100) if i * i + j * j <= r * r] or [(x0, y0)]
+    homes = d.get("dwellings", d.get("lot_ha", 0) * P["dwellings_per_ha"])
+    people = homes * P["persons_per_dwelling"]
+    for x, y in pts:
         for attr in ("residents", "age_0_24", "age_25_64"):
-            add(x, y, attr, people * tot_now[attr] / tot_now["residents"])
+            add(x, y, attr, people * tot_now[attr] / tot_now["residents"] / len(pts))
         for attr in ("jobs", "education", "retail"):
-            add(x, y, attr, d.get(attr, 0))
-        developments.append(dict(d, dwellings=round(homes), residents=round(people)))
+            add(x, y, attr, d.get(attr, 0) / len(pts))
+    return dict(d, dwellings=round(homes), residents=round(people))
+
+
+# built after the 2021 census: in every scenario
+recent = [build(d) for d in P.get("recent", [])]
+developments = [build(d) for d in P["developments"]] if variant == "urbanizacao" else []
 
 inner = [z for z in zones.values() if not z.outer]
 # Outside the study area we only know residents; estimate their jobs/retail/education from
@@ -404,7 +414,7 @@ json.dump(dict(
     entering_per_day=sum(entering.values()), entering_by_corridor=dict(entering),
     gates=[{"lonlat": [round(v, 5) for v in net.convertXY2LonLat(g["x"], g["y"])], **{k: g[k] for k in ("node", "type", "corridor")},
             "daily_in": round(g["daily_in"])} for g in gates],
-    projects=[{k: p[k] for k in p if k != "xy"} for p in projects], developments=developments, station=st), open(zones_out, "w"), ensure_ascii=False)
+    projects=[{k: p[k] for k in p if k != "xy"} for p in projects], developments=developments, recent=recent, station=st), open(zones_out, "w"), ensure_ascii=False)
 print(f"{len(walks)} walks, {len(deliveries)} deliveries ({sum(1 for d in deliveries if d[3])} double-parked)")
 print(f"car share of resident trips: {person_trips[1] / person_trips[0]:.0%} (PMUS 2018: 64%)")
 print(f"{len(trips)} car trips, {len(inner)} inner zones, {len(zl) - len(inner)} outer zones, {len(gates)} gates; "

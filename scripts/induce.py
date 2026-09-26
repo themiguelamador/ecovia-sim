@@ -47,12 +47,47 @@ def times_from(net, src):
     return best
 
 
+def mode_shift(trips_file, net_file, stops_file, out):
+    """new bus lines: [bus].mode_shift of the car trips starting or ending within
+    [bus].mode_shift_radius_m of a new stop move to the bus (dropped from the car demand).
+    Only stops giving new coverage count: more than [bus].new_coverage_m from a Guimabus stop"""
+    import tomllib
+    B = tomllib.load(open("params.toml", "rb"))["bus"]
+    net = sumolib.net.readNet(net_file)
+    def xy(files):
+        for f in files:
+            for s in ET.parse(f).getroot().findall("busStop"):
+                if net.hasEdge(s.get("lane").rsplit("_", 1)[0]):
+                    yield sumolib.geomhelper.positionAtShapeOffset(net.getLane(s.get("lane")).getShape(), float(s.get("startPos")))
+    old = list(xy([os.path.join(os.path.dirname(out), "stops.add.xml")]))
+    c2 = B["new_coverage_m"] ** 2
+    pts = [(x, y) for x, y in xy([stops_file]) if all((x - ox) ** 2 + (y - oy) ** 2 > c2 for ox, oy in old)]
+    r2 = B["mode_shift_radius_m"] ** 2
+
+    def served(edge_id):
+        x, y = net.getEdge(edge_id).getShape()[len(net.getEdge(edge_id).getShape()) // 2]
+        return any((x - px) ** 2 + (y - py) ** 2 <= r2 for px, py in pts)
+    root = ET.parse(trips_file).getroot()
+    rng, near, moved = random.Random(2), 0, 0
+    for t in [c for c in root if c.tag == "trip" and c.get("type") == "car"]:
+        if served(t.get("from")) or served(t.get("to")):
+            near += 1
+            if rng.random() < B["mode_shift"]:
+                root.remove(t)
+                moved += 1
+    ET.ElementTree(root).write(out)
+    print(f"bus lines: {len(pts)} stops with new coverage, {near} car trips near them, {moved} moved to the bus")
+
+
 if __name__ == "__main__":
     base_trips, base_net, scen_net = sys.argv[1:4]
     scen_file, out = (sys.argv[4], sys.argv[5]) if len(sys.argv) == 6 else (None, sys.argv[4])
     spec = json.load(open(scen_file)) if scen_file else {}
     if spec.get("demand"):  # scenarios built on a demand variant (urbanizacao, pmus2030)
         base_trips = base_trips.replace("trips.xml", f"trips_{spec['demand']}.xml")
+    if spec.get("bus_lines"):
+        mode_shift(base_trips, scen_net, out.replace(".trips.xml", ".bus.add.xml"), out)
+        sys.exit()
     e = spec.get("elasticity")
     if not e:
         shutil.copyfile(base_trips, out)

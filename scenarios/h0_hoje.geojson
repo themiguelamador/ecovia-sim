@@ -1,0 +1,8 @@
+{
+ "type": "FeatureCollection",
+ "title": "H0 · Hoje (sem Campus da Justiça)",
+ "description": "A rede e a cidade de hoje, antes do Campus da Justiça (previsto para 2029). Comparado com a base mostra o que o Campus acrescenta ao trânsito.",
+ "demand": "hoje",
+ "reference": "base",
+ "features": []
+}

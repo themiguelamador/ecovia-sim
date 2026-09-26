@@ -231,7 +231,7 @@ json.dump({
         "horizon": P["horizon"], "car_share_max": P["car_share_max"], "car_half_km": P["car_half_km"], "occupancy": P["occupancy"],
         "purposes": {k: {x: v[x] for x in ("rate", "producer", "attractor", "out_profile", "back_profile")} for k, v in P["purposes"].items()},
         "profiles": P["profiles"], "corridors": P["corridors"], "corridor_to_city": P["corridor_to_city"],
-        "through_share": P["through_share"], "projects": zones["projects"], "station": zones.get("station"), "developments": json.load(open(f"{out}/zones_urbanizacao.json"))["developments"] if os.path.exists(f"{out}/zones_urbanizacao.json") else [], "totals": zones["totals"], "trips": zones["trips"],
+        "through_share": P["through_share"], "projects": zones["projects"], "station": zones.get("station"), "recent": zones.get("recent", []), "developments": json.load(open(f"{out}/zones_urbanizacao.json"))["developments"] if os.path.exists(f"{out}/zones_urbanizacao.json") else [], "totals": zones["totals"], "trips": zones["trips"],
         "entering_per_day": zones["entering_per_day"], "entering_by_corridor": zones["entering_by_corridor"],
         "pdm_entering_2019": 69000, "gates": zones["gates"],
         "zones": [[z["lon"], z["lat"], z["residents"], z["jobs"], z["education"], z["retail"], [a + b for a, b in zip(z["dep"], z["arr"])]] for z in zones["zones"]],

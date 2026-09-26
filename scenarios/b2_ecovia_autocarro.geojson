@@ -1,0 +1,65 @@
+{
+ "type": "FeatureCollection",
+ "features": [],
+ "title": "B2 · Autocarros novos pela via sobre a Ecovia",
+ "description": "As mesmas duas linhas e a mesma transferência modal, com a via sobre a Ecovia construída e a linha Estação – Campus da Justiça a passar por ela (deixa de passar pela Costa).",
+ "bus_lines": [
+  {
+   "id": "L1",
+   "name": "Estação – Campus da Justiça",
+   "via": [
+    [
+     -8.29424,
+     41.43548
+    ],
+    [
+     -8.285592,
+     41.439488
+    ],
+    [
+     -8.2737,
+     41.4478
+    ],
+    [
+     -8.2727,
+     41.449
+    ]
+   ]
+  },
+  {
+   "id": "L2",
+   "name": "Centro – Costa",
+   "via": [
+    [
+     -8.29228,
+     41.44193
+    ],
+    [
+     -8.2882,
+     41.4384
+    ],
+    [
+     -8.2825,
+     41.4432
+    ],
+    [
+     -8.2797,
+     41.4424
+    ],
+    [
+     -8.2778,
+     41.44255
+    ]
+   ]
+  }
+ ],
+ "include": [
+  {
+   "file": "../data/pdm/tracado.geojson",
+   "group": [
+    "ecovia"
+   ],
+   "kind": "nova"
+  }
+ ]
+}

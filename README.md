@@ -78,17 +78,20 @@ copia-se para `sites/ecovia/public/simulacao/data/` no repositório do site.
 
 | Cenário | Conteúdo |
 |---|---|
-| base | rede actual, procura 2030 com o Campus da Justiça |
+| base | rede actual, procura 2030 com o Campus da Justiça e ~2 000 fogos construídos depois dos Censos 2021 (`[[recent]]`) |
+| h0_hoje | a cidade de hoje, sem o Campus da Justiça (horizonte 2026); comparado com a base |
 | s1_ecovia | ligação D. João IV – Parque da Cidade (sobre a Ecovia) |
 | s2_via_rapida | ligação Av. D. João IV – Urgezes à via rápida, sem a via da Ecovia |
 | s3_ecovia_circular | as duas: eixo contínuo da estação à Circular |
 | s4_pdm_sem_ecovia | todas as vias novas do PDM excepto a da Ecovia |
 | s5_pdm_completo | todas as vias novas do PDM |
 | *_induzida | S3 e S5 com procura induzida (elasticidade −0,5) |
-| u0_base_urbanizacao | rede actual + urbanização: lotes vazios da Costa, junto ao Hotel de Guimarães e do Monte do Cavalinho com prédios de 4–5 andares (~1 100 fogos), novo Centro de Saúde, ruas do Cavalinho (`data/urbanizacao.geojson`); comparado com a base |
+| u0_base_urbanizacao | rede actual + urbanização: lotes vazios da Costa, junto ao Hotel de Guimarães e do Monte do Cavalinho com prédios de 4–5 andares e na zona do Campus da Justiça (~2 400 fogos), novo Centro de Saúde, ruas do Cavalinho (`data/urbanizacao.geojson`); comparado com a base |
 | u1…u5 | S1–S5 com a urbanização; comparados com U0 (campo `reference`) |
 | p0_pmus2030 | rede actual com a meta do PMUS de Guimarães para 2030: automóvel de 64% para 40% das deslocações dos residentes (`[variants.pmus2030]` em `params.toml`); comparado com a base |
 | p1, p2, p5 | S1, S2 e S5 com essa meta; comparados com P0 |
+| b1_autocarro | duas linhas de autocarro novas nas ruas existentes (Estação – Campus da Justiça, Centro – Costa; `bus_lines` no cenário, `[bus]` em `params.toml`, `scripts/busline.py`); 10% das viagens de carro junto às paragens com cobertura nova passam para o autocarro |
+| b2_ecovia_autocarro | as mesmas linhas com a via sobre a Ecovia; a linha do Campus passa por ela |
 | example_avenida_30 | exemplo de `modify` (fora do estudo: não começa por `s` nem `u`) |
 
 6. **Resultados** (`scripts/export_web.py`). Indicadores por cenário com intervalo de 95% sobre as

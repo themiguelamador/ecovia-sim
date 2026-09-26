@@ -5,8 +5,8 @@
 SCEN ?= base
 SEED ?= 1
 SEEDS := 1 2 3 4 5
-SCENARIOS := base $(sort $(basename $(notdir $(wildcard scenarios/s*.geojson scenarios/u*.geojson scenarios/p*.geojson))))
-DEMANDS := urbanizacao pmus2030
+SCENARIOS := base $(sort $(basename $(notdir $(wildcard scenarios/s*.geojson scenarios/u*.geojson scenarios/p*.geojson scenarios/h*.geojson scenarios/b*.geojson))))
+DEMANDS := urbanizacao pmus2030 hoje
 # study area: the whole city inside the Circular (EN101/EN105/EN206), as in the PDM image
 BBOX := -8.325,41.415,-8.243,41.465
 export SUMO_HOME := $(shell uv run python -c "import sumo; print(sumo.SUMO_HOME)")
@@ -96,10 +96,18 @@ SIM := --begin 0 --end 90000 --device.rerouting.probability 1 --device.rerouting
 FCD := --fcd-output fcd.xml --fcd-output.geo --fcd-output.attributes x,y,speed,type \
   --device.fcd.probability 0.12 --device.fcd.begin 25200 --device.fcd.period 2 --person-device.fcd.probability 0
 
+# new bus lines (scenarios b*): routes, stops, and the car trips that move to the bus
+comma := ,
+BUS_SCENARIOS := $(basename $(notdir $(wildcard scenarios/b*.geojson)))
+out/b%.bus.rou.xml out/b%.bus.add.xml: out/b%.net.xml scenarios/b%.geojson params.toml scripts/busline.py
+	$(PY) scripts/busline.py out/b$*.net.xml scenarios/b$*.geojson params.toml out/b$*.bus.rou.xml out/b$*.bus.add.xml
+$(foreach s,$(BUS_SCENARIOS),$(eval out/$(s).trips.xml: out/$(s).bus.add.xml))
+BUSX = $(if $(filter $(1),$(BUS_SCENARIOS)),$(comma)out/$(1).bus.$(2).xml)
+
 define RUN
-out/$(1)/seed$(2)/tripinfo.xml: out/$(1).net.xml out/$(1).trips.xml out/bus.rou.xml out/stops.add.xml edgedata.add.xml vtypes.add.xml
+out/$(1)/seed$(2)/tripinfo.xml: out/$(1).net.xml out/$(1).trips.xml out/bus.rou.xml out/stops.add.xml edgedata.add.xml vtypes.add.xml $(if $(filter $(1),$(BUS_SCENARIOS)),out/$(1).bus.rou.xml out/$(1).bus.add.xml)
 	mkdir -p $$(@D)
-	$(BIN)/sumo -n out/$(1).net.xml -r out/$(1).trips.xml,out/bus.rou.xml -a vtypes.add.xml,out/stops.add.xml,edgedata.add.xml --seed $(2) $(SIM) \
+	$(BIN)/sumo -n out/$(1).net.xml -r out/$(1).trips.xml,out/bus.rou.xml$(call BUSX,$(1),rou) -a vtypes.add.xml,out/stops.add.xml,edgedata.add.xml$(call BUSX,$(1),add) --seed $(2) $(SIM) \
 	  --output-prefix $$(@D)/ --tripinfo-output tripinfo.xml --statistic-output stats.xml $(if $(filter 1,$(2)),$(FCD)) > $$(@D)/log.txt 2>&1
 endef
 $(foreach s,$(SCENARIOS),$(foreach k,$(SEEDS),$(eval $(call RUN,$(s),$(k)))))
