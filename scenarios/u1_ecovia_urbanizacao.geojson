@@ -14,6 +14,12 @@
     "ecovia"
    ],
    "kind": "nova"
+  },
+  {
+   "file": "../data/pdm/junctions.geojson",
+   "group": [
+    "ecovia"
+   ]
   }
  ],
  "features": []

@@ -1,0 +1,23 @@
+{
+ "type": "FeatureCollection",
+ "description": "Cruzamentos das vias do PDM com um tipo próprio. Usado pelos cenários que incluem a via do grupo.",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "group": "ecovia",
+    "action": "junction",
+    "type": "right_before_left",
+    "name": "Rotunda a meio da via sobre a Ecovia (Rua Bernardino Jordão / Rua Domingos da Silva Gonçalves)",
+    "note": "ponytail: rotunda aproximada por um cruzamento sem prioridade (todos cedem à direita); um anel completo seria mais fiel"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -8.2868,
+     41.43894
+    ]
+   }
+  }
+ ]
+}

@@ -16,6 +16,12 @@
     "urgezes",
     "outras"
    ]
+  },
+  {
+   "file": "../data/pdm/junctions.geojson",
+   "group": [
+    "ecovia"
+   ]
   }
  ]
 }

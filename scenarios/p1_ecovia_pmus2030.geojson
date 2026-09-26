@@ -12,6 +12,12 @@
    "group": [
     "ecovia"
    ]
+  },
+  {
+   "file": "../data/pdm/junctions.geojson",
+   "group": [
+    "ecovia"
+   ]
   }
  ]
 }

@@ -100,7 +100,10 @@ EXISTING_M = 25       # metres: a point this close to an OSM road is "on" it
 # where the drawn line stops short of the junction it obviously ends on, extend the main road
 # (last leg) straight to that junction: lon/lat of the junction.
 EXTEND_TO = {
-    "ecovia": {"end": (-8.27408, 41.44611)},    # roundabout of Av. Rio de Janeiro (same end as the site's reconstruction)
+    "ecovia": {
+        "start_at": (-8.29230, 41.43468),        # east node of the station roundabout: the road is one of its exits
+        "end": (-8.27408, 41.44611),             # roundabout of Av. Rio de Janeiro (same end as the site's reconstruction)
+    },
     "circular": {
         "start": (-8.27139, 41.44843),           # Travessa Rio de Janeiro, Parque da Cidade side
         "end": (-8.27392, 41.45453),             # local side of the existing EN101 interchange, which the PDM
@@ -278,6 +281,12 @@ if __name__ == "__main__":
             ext = EXTEND_TO.get(key, {})
             if "start" in ext and j == 0:
                 m = np.vstack([to_m([ext["start"]]), m])
+            if "start_at" in ext and j == 0:   # replace the traced start: drop points within 50 m, begin exactly there
+                p = to_m([ext["start_at"]])[0]
+                k = 0
+                while k < len(m) - 1 and np.linalg.norm(m[k] - p) < 50:
+                    k += 1
+                m = np.vstack([p, m[k:]])
             if "end" in ext and j == len(wps) - 2:
                 m = np.vstack([m, to_m([ext["end"]])])
             mains.append((key, name, m, r, j))

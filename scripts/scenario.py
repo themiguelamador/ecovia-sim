@@ -7,6 +7,8 @@ Feature properties:
   speed_kmh  speed limit                   (add: default 50; modify: optional)
   oneway     true = only in drawing direction (add only)
   name       street name                   (add only)
+A Point feature with action "junction" and "type" (a SUMO junction type, e.g.
+"right_before_left") sets the type of the existing junction within 30 m of it.
 "add" line ends snap to an existing junction within 60 m (traced PDM lines are only ~15 m
 accurate), or to another added line's end, else they become new junctions. A new junction
 left as a loose end (one road only) is joined by a straight connector to the nearest
@@ -94,6 +96,15 @@ def build(net, features):
 
     for i, f in enumerate(features):
         pr = f.get("properties") or {}
+        if f["geometry"]["type"] == "Point":
+            if pr.get("action") == "junction":
+                x, y = net.convertLonLat2XY(*f["geometry"]["coordinates"])
+                n = min(net.getNodes(), key=lambda n: math.dist(n.getCoord(), (x, y)))
+                if math.dist(n.getCoord(), (x, y)) > 30:
+                    sys.exit(f"feature {i}: no junction within 30 m for {pr.get('name')}")
+                nodes.append(f'  <node id="{n.getID()}" x="{n.getCoord()[0]:.2f}" y="{n.getCoord()[1]:.2f}" type="{pr["type"]}"/>')
+                print(f"feature {i} (junction): {n.getID()} -> {pr['type']}")
+            continue
         line = [net.convertLonLat2XY(lon, lat) for lon, lat in f["geometry"]["coordinates"]]
         action = pr.get("action", "add")
         if action == "add":
@@ -173,7 +184,7 @@ if __name__ == "__main__":
     subprocess.run(cmd, check=True)
     # guard: a new road nobody can drive onto silently carries zero traffic
     patched = sumolib.net.readNet(out)
-    new_ids = {n.split('"')[1] for n in nodes}
+    new_ids = {n.split('"')[1] for n in nodes if 'type=' not in n}  # not the retyped junctions
     dead = [e.getID() for e in patched.getEdges()
             if e.getID().lstrip("-").startswith("scn") and not e.getIncoming() and e.getFromNode().getID() not in new_ids]
     if dead:
