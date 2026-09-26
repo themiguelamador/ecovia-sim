@@ -71,6 +71,13 @@ lon = -8.2943
 lat = 41.4351
 park_and_ride = 350          # cars parked for the day: arrive 6-9h, leave 17-20h
 kiss_and_ride = 200          # drop-offs or pick-ups: to the station and straight back
+# where the park-and-ride cars park. ASSUMPTIONS: car park ~2 400 m2 of surface parking
+# (OSM 104203822) at ~25 m2 per space; Rua do Centro ~400 m of kerb, parked by train commuters
+# morning and evening (per the association); the rest on streets near the station
+carpark_name = "Parque da estação"   # the access added in data/corrections.geojson
+carpark_spaces = 100
+street_spaces = { "Rua do Centro" = 70 }
+street_radius_m = 400
 
 # --- trip generation -------------------------------------------------------------
 # Trips per resident per day by purpose (all modes). IMob 2017 (INE): ~2.7 trips/person/day

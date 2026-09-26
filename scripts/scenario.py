@@ -6,6 +6,7 @@ Feature properties:
   lanes      lanes per direction           (add: default 1; modify: optional)
   speed_kmh  speed limit                   (add: default 50; modify: optional)
   oneway     true = only in drawing direction (add only)
+  dead_end   true = the line's end is meant to be a dead end (car park access): no connector
   street     modify/remove/oneway: only segments with this street name (a short segment of
              another street within 25 m would otherwise match too)
   name       street name                   (add only)
@@ -65,7 +66,7 @@ def near_line(edge, line):
 
 
 def build(net, features):
-    nodes, edges, remove, new_nodes, conns = [], [], [], [], []
+    nodes, edges, remove, new_nodes, conns, dead_ends = [], [], [], [], [], set()
     degree = {}
 
     def feed(nid, new_edge, shape):
@@ -84,12 +85,12 @@ def build(net, features):
             lane = max(car) if left else min(car)
             conns.append(f'  <connection from="{e.getID()}" to="{new_edge}" fromLane="{lane}" toLane="0"/>')
 
-    def snap(x, y):
-        for nid, nx, ny in new_nodes:
+    def snap(x, y, new=False):
+        for nid, nx, ny in ([] if new else new_nodes):
             if math.hypot(x - nx, y - ny) <= SNAP_M:
                 return nid
         best = min((n for n in net.getNodes() if joinable(n)), key=lambda n: math.dist(n.getCoord(), (x, y)))
-        if math.dist(best.getCoord(), (x, y)) <= SNAP_M:
+        if not new and math.dist(best.getCoord(), (x, y)) <= SNAP_M:
             return best.getID()
         nid = f"scn{len(new_nodes)}"
         new_nodes.append((nid, x, y))
@@ -110,10 +111,12 @@ def build(net, features):
         line = [net.convertLonLat2XY(lon, lat) for lon, lat in f["geometry"]["coordinates"]]
         action = pr.get("action", "add")
         if action == "add":
-            a, b = snap(*line[0]), snap(*line[-1])
+            a, b = snap(*line[0]), snap(*line[-1], new=bool(pr.get("dead_end")))
             if a == b:
                 continue  # short piece whose ends snap to the same junction
             degree[a], degree[b] = degree.get(a, 0) + 1, degree.get(b, 0) + 1
+            if pr.get("dead_end"):
+                dead_ends.add(b)
             attrs = (f'numLanes="{pr.get("lanes", 1)}" speed="{pr.get("speed_kmh", 50) / 3.6:.2f}" '
                      f'priority="9" allow="passenger bus truck delivery emergency"')
             if pr.get("name") or pr.get("corridor"):
@@ -144,7 +147,7 @@ def build(net, features):
                     edges.append(f'  <edge id="{e.getID()}"{upd}/>')
             print(f"feature {i} ({action}): {len(hits)} edges: {' '.join(e.getID() for e in hits)}")
     for nid, x, y in list(new_nodes):
-        if degree.get(nid) != 1:
+        if degree.get(nid) != 1 or nid in dead_ends:
             continue
         best = min((n for n in net.getNodes() if joinable(n)), key=lambda n: math.dist(n.getCoord(), (x, y)))
         if math.dist(best.getCoord(), (x, y)) > CONNECT_M:

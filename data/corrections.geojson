@@ -180,6 +180,41 @@
      ]
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "add",
+    "name": "Parque da estação",
+    "speed_kmh": 20,
+    "dead_end": true,
+    "note": "Acesso ao parque de estacionamento da estação (OSM 104203861 + corredor 104203795), a partir da Av. D. João IV. As vias de serviço não entram na rede importada."
+   },
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -8.293638,
+      41.43536
+     ],
+     [
+      -8.293649,
+      41.4353
+     ],
+     [
+      -8.29367,
+      41.435208
+     ],
+     [
+      -8.293267,
+      41.434918
+     ],
+     [
+      -8.293332,
+      41.434688
+     ]
+    ]
+   }
   }
  ]
 }

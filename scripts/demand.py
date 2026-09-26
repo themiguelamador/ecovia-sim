@@ -315,10 +315,26 @@ def station_trip(profile):
     return h * 3600 + rng.random() * 3600
 
 
+# where park-and-ride cars park: the station car park (a dead end: in by one direction, out by
+# the other), the named streets, and any street within station.street_radius_m for the rest
+park = []  # (weight, arrive edge, leave edge)
+cp = [e for e in net.getEdges() if e.getName() == st["carpark_name"]]
+if cp:
+    cin = next(e for e in cp if not e.getOutgoing())
+    cout = next(e for e in cp if not e.getIncoming())
+    park.append((st["carpark_spaces"], cin.getID(), cout.getID()))
+for name, spaces in st["street_spaces"].items():
+    es = [e for e in net.getEdges() if e.getName() == name and e in CONNECTED]
+    park += [(spaces * e.getLength() / sum(x.getLength() for x in es), e.getID(), e.getID()) for e in es]
+rest = st["park_and_ride"] - sum(w for w, *_ in park)
+near = [e for e, _ in net.getNeighboringEdges(sx, sy, st["street_radius_m"]) if e in CONNECTED and base_type(e) not in NO_HOME
+        and e.getName() not in st["street_spaces"]]
+park += [(max(rest, 0) * e.getLength() / sum(x.getLength() for x in near), e.getID(), e.getID()) for e in near]
 for z in rng.choices(zl, weights=st_w, k=stochastic_round(st["park_and_ride"] * P["scale"])):
     home_out, home_in = pick_edge(z, "residents", False), pick_edge(z, "residents", True)
-    trips.append((station_trip("am_commute"), home_out, st_edge))
-    trips.append((station_trip("pm_commute"), st_edge, home_in))
+    _, arrive, leave = rng.choices(park, weights=[w for w, *_ in park])[0]
+    trips.append((station_trip("am_commute"), home_out, arrive))
+    trips.append((station_trip("pm_commute"), leave, home_in))
 for z in rng.choices(zl, weights=st_w, k=stochastic_round(st["kiss_and_ride"] * P["scale"])):
     t = station_trip(rng.choice(["am_commute", "pm_commute"]))
     trips.append((t, pick_edge(z, "residents", False), st_edge))
