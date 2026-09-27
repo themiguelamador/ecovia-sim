@@ -241,6 +241,7 @@ json.dump({
         "delivery_stop_s": P["delivery_stop_s"], "deliveries_per_retail_unit": P["deliveries_per_retail_unit"],
         "double_parking_share": P["double_parking_share"], "bus_trips": bus_trips, "gtfs_date": P["gtfs_date"],
         "crossings": crossing_pts, "bus_stops": stop_pts,
+        "traffic_lights": [[round(v, 5) for v in base_net.convertXY2LonLat(*n.getCoord())] for n in base_net.getNodes() if n.getType() == "traffic_light"],
     },
     "pdm_roads": [{"group": f["properties"]["group"], "corridor": f["properties"]["corridor"], "kind": f["properties"]["kind"],
                    "coords": [round(v, 5) for p in f["geometry"]["coordinates"] for v in p]} for f in tracado["features"]],
