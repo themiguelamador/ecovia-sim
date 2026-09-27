@@ -2,10 +2,12 @@
 
 usage: export_web.py OUT_DIR WEB_DIR
 WEB_DIR/
-  meta.json            scenarios, KPIs (mean and 95% CI over seeds, paired with base), premises
+  meta.json            scenarios, KPIs (mean and 95% CI over seeds, paired with each scenario's
+                       "reference": base, or U0/P0), premises
   network.json         base road network: [name, class, limit_kmh, [lon, lat, ...]] per edge
   flows/<scen>.json    hourly vehicles and speed per edge (mean over seeds) + the scenario's new roads
   anim/<scen>.json     vehicle tracks 8:00-9:00, 12% sample, seed 1
+(local.json and corridors.json come from scripts/local.py and scripts/corridors.py)
 """
 import glob
 import json
@@ -182,7 +184,7 @@ for m in meta_scen:
                     per_corridor[e.getName()][1] += e.getLength()
     # daily vehicles per direction on the new roads, length-weighted, by PDM corridor
     m["new_roads"] = [{"corridor": c, "km": round(L / 2000, 2), "veh_day": round(vl / L)} for c, (vl, L) in per_corridor.items()]
-    # per street and hour: the paired difference vs base, kept only where its 95% interval
+    # per street and hour: the paired difference vs the reference, kept only where its 95% interval
     # excludes zero (0 otherwise), so the difference map does not paint route-choice noise
     dsig = []
     if s != "base":

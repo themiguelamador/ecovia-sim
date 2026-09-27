@@ -6,9 +6,12 @@ The walked share of short trips becomes pedestrians (they use the crossings); ca
 park on local streets stop in the lane to manoeuvre and pull out from standstill; delivery
 vans double-park at shops. Buses come from the GTFS (Makefile), not from here.
 
-usage: demand.py NET CENSUS OSM PARAMS OUT_TRIPS OUT_ZONES_JSON [urbanizacao]
-With "urbanizacao", the [[developments]] of params.toml (new homes, health centre, Monte do
-Cavalinho) are added to the demand.
+Also: homes built after the census ([[recent]], every run), train commuters parking at the
+station ([station]), big facilities reached at their access and parking off-street.
+usage: demand.py NET CENSUS OSM PARAMS OUT_TRIPS OUT_ZONES_JSON [VARIANT]
+VARIANT: a [variants.<name>] of params.toml overrides its keys (hoje, pmus2030); "urbanizacao"
+also adds the [[developments]] (new homes, health centre, Monte do Cavalinho) and is built on
+the U0 network, which has the Monte do Cavalinho road.
 """
 import csv
 import gzip

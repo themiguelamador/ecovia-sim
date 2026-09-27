@@ -24,7 +24,8 @@ occupancy = 1.6              # people per car: PMUS de Guimarães (2018), Tabela
 # Check: the PDM estimates 69 000 vehicles/day entering the city (2019), "possibly close
 # to 100 000" after the pandemic; demand.py prints the model's figure.
 outside_trip_factor = 1.0    # scale for municipality residents outside the study area
-corridor_to_city = 0.65          # calibrated so entries match the PDM 2019 estimate (~69 000/day)
+corridor_to_city = 0.65          # calibrated to the PDM 2019 estimate (~69 000/day) with 1.3 persons
+                                 # per car; with the PMUS occupancy (1.6) the model gives ~65 600/day
 through_share = 0.3
 outside_activity = 0.5      # jobs/retail/schools per resident outside, relative to the centre's ratio
 

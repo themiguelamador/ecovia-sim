@@ -2,7 +2,7 @@
 
 The citywide totals can hide a local gain (or loss). For each area, the mean duration of
 the car trips that start or end within its radius, per scenario and seed, paired with the
-base run of the same seed (mean and 95% CI over seeds).
+same seed of the scenario's reference (base, or U0/P0; mean and 95% CI over seeds).
 
 usage: local.py OUT_DIR OUT_JSON
 """

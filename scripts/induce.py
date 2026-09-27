@@ -9,7 +9,9 @@ Short/medium-run elasticities of car traffic to travel time are ~ -0.3 to -0.5, 
 # ponytail: free-flow times, not congested ones; underestimates induction where the new
 # road relieves a congested corridor. Upgrade: skims from the base run's edgedata.
 
-Scenarios without an elasticity (and the base) get the base trips unchanged.
+Scenarios with "demand": <variant> start from that variant's trips (trips_<variant>.xml); with
+"bus_lines", car trips near the new stops move to the bus ([bus].mode_shift). Scenarios
+without either (and the base) get the base trips unchanged.
 usage: induce.py BASE_TRIPS BASE_NET SCEN_NET [SCENARIO.geojson] OUT_TRIPS
 """
 import copy
