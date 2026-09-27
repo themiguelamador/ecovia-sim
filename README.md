@@ -23,7 +23,7 @@ vias fechadas.
 Precisa de [uv](https://docs.astral.sh/uv/) e `make`. O SUMO é instalado pelo `uv` (pacote `eclipse-sumo`).
 
 ```bash
-make -j16 study                   # todos os cenários × 5 sementes + exportação para web/ (~1 h com 16 núcleos)
+make -j16 study                   # 21 cenários × 5 sementes + exportação para web/ (~5–7 h com 16 núcleos)
 make run SCEN=s1_ecovia SEED=1    # uma simulação
 make compare SCEN=s1_ecovia       # mapa local out/s1_ecovia/report.html (semente 1)
 make gui SCEN=s1_ecovia           # ver o trânsito a circular (sumo-gui, começa às 7h)
@@ -33,24 +33,41 @@ make test
 ```
 
 `web/` é o que o site publica em [amigosdaecovia.org/simulacao](https://amigosdaecovia.org/simulacao):
-copia-se para `sites/ecovia/public/simulacao/data/` no repositório do site.
+copia-se para `sites/ecovia/public/simulacao/data/` no repositório do site (o `commit` em
+`meta.json` identifica a versão do modelo).
+
+Notas para correr o estudo:
+- O `make` do macOS (3.81) não suporta alvos agrupados (`a b &:`): gera a procura base e as rotas
+  dos autocarros antes, sem `-j` (`make out/trips.xml out/bus.rou.xml`), ou usa GNU make ≥ 4.3.
+- Um estudo completo demora horas: corre-o dentro de `tmux` e com `caffeinate -dims` (macOS),
+  para não parar se o terminal fechar ou o computador adormecer.
+- Não alteres `scripts/*.py`, `params.toml` nem `data/` enquanto um estudo corre: o `make` refaz
+  os cenários cujas entradas ficaram mais recentes.
 
 ## Como funciona
 
 1. **Rede** (`Makefile`, `netconvert`). OSM recortado a `-8.325,41.415,-8.243,41.465`: a cidade
    inteira até à Circular (EN101, EN105, EN206). Rotundas, semáforos e vias de viragem vêm das
-   etiquetas OSM. Vias sem `maxspeed` ficam a 50 km/h (limite urbano).
+   etiquetas OSM. Vias sem `maxspeed` ficam a 50 km/h (limite urbano), com as excepções de
+   `data/corrections.geojson` (ver *Correcções da rede*).
 2. **Procura** (`scripts/demand.py`, `params.toml`). Modelo de quatro passos simplificado:
    - *Geração* — residentes por subsecção (Censos 2021) × taxa de viagens por motivo. Emprego,
      ensino e comércio a partir do OSM (`[attractors]`); grandes equipamentos com dimensão
-     própria (`[[projects]]`: UMinho Azurém, Hospital, Campus da Justiça em 2029).
+     própria (`[[projects]]`: UMinho Azurém, Hospital, Campus da Justiça em 2029), com parque
+     próprio: quem lá chega não estaciona na faixa. O Campus da Justiça é servido pela
+     Av. Rio de Janeiro (`access_lon/lat`).
+   - *Construção recente* — ~2 000 fogos construídos depois dos Censos 2021 na zona do Campus
+     da Justiça (`[[recent]]`), em todos os cenários.
+   - *Estação* — `[station]`: 350 carros de quem apanha o comboio (parque da estação, Rua do
+     Centro e ruas até 400 m) e 200 viagens de deixar/buscar alguém.
    - *Distribuição* — modelo gravitacional por motivo entre zonas de 400 m e o resto do concelho.
-   - *Repartição modal* — probabilidade de ir de carro cresce com a distância; calibrada nos
-     72,6% de deslocações pendulares de automóvel dos Censos 2021.
+   - *Repartição modal* — probabilidade de ir de carro cresce com a distância; dá 65% das
+     deslocações dos residentes em automóvel (PMUS 2018: 64%; `demand.py` imprime a
+     verificação), com 1,6 pessoas por carro (PMUS).
    - *Hora* — perfis horários por motivo (`[profiles]`).
    - *De fora* — residentes do resto do concelho (Censos) e tráfego de outros concelhos a partir
-     do TMDA 2021 por corredor (PDM Vol. VI, Figura 4), ajustado para ~69 000 entradas/dia,
-     a estimativa do próprio PDM. `demand.py` imprime a verificação.
+     do TMDA 2021 por corredor (PDM Vol. VI, Figura 4). Dá ~65 600 entradas/dia na área
+     (o PDM estima ~69 000). `demand.py` imprime a verificação.
 3. **Escolha de percurso** (`sumo`). Caminho mais rápido à partida, reavaliado a cada 2 min.
    Na mesma simulação:
    - **Peões** — a parte não motorizada das viagens curtas (`walk_km`) anda nos passeios
@@ -71,32 +88,56 @@ copia-se para `sites/ecovia/public/simulacao/data/` no repositório do site.
    erro médio 12 m; verificação em `data/pdm/overlay.png`), as linhas vermelhas são traçadas e
    classificadas em *nova* ou *existente* (segue uma rua do OSM) e agrupadas por corredor em
    `data/pdm/tracado.geojson`. Só os troços novos entram na rede, com 1 via por sentido a 50 km/h.
-   Pontas soltas ligam à rua mais próxima até 250 m (ligação assumida).
+   Pontas soltas ligam à rua mais próxima até 250 m (ligação assumida; 4 casos, no PDM
+   completo). O PDM ainda não é a versão final: os traçados são aproximados.
+   Ajustes feitos com a associação: a via da Ecovia é uma saída da rotunda da estação e o
+   cruzamento a meio dela funciona como rotunda (sem prioridade; `data/pdm/junctions.geojson`);
+   a ligação a Urgezes continua a rua do Monte do Cavalinho a partir do gancho
+   (`data/pdm/urgezes_acesso.geojson` quando o Cavalinho não está aberto); a via junto à linha
+   do comboio arranca da R. António da Costa Guimarães.
 5. **Cenários** (`scripts/scenario.py`). GeoJSON em `scenarios/`: linhas próprias (`add`,
-   `modify`, `remove`) e/ou `include` de corredores do traçado do PDM. `"elasticity"` activa a
-   procura induzida (`scripts/induce.py`).
+   `modify`, `remove`, `oneway`, com `street` para limitar a uma rua, `dead_end`, `existing`) e
+   pontos (`split` corta uma rua existente num cruzamento novo, `junction` muda o tipo de um
+   cruzamento, `area_speed` muda a velocidade de um tipo de rua numa área), e/ou `include` de
+   outros ficheiros filtrados por propriedade. Chaves do cenário: `"demand"` (variante da
+   procura), `"reference"` (cenário com que se compara), `"elasticity"` (procura induzida,
+   `scripts/induce.py`) e `"bus_lines"` (linhas de autocarro novas, `scripts/busline.py`).
 
 | Cenário | Conteúdo |
 |---|---|
 | base | rede actual, procura 2030 com o Campus da Justiça e ~2 000 fogos construídos depois dos Censos 2021 (`[[recent]]`) |
 | h0_hoje | a cidade de hoje, sem o Campus da Justiça (horizonte 2026); comparado com a base |
 | s1_ecovia | ligação D. João IV – Parque da Cidade (sobre a Ecovia) |
-| s2_via_rapida | ligação Av. D. João IV – Urgezes à via rápida, sem a via da Ecovia |
+| s2_via_rapida | ligação Av. D. João IV – Urgezes à via rápida, sem a via da Ecovia (com a ligação Parque da Cidade – Circular) |
 | s3_ecovia_circular | as duas: eixo contínuo da estação à Circular |
 | s4_pdm_sem_ecovia | todas as vias novas do PDM excepto a da Ecovia |
 | s5_pdm_completo | todas as vias novas do PDM |
 | *_induzida | S3 e S5 com procura induzida (elasticidade −0,5) |
-| u0_base_urbanizacao | rede actual + urbanização: lotes vazios da Costa, junto ao Hotel de Guimarães e do Monte do Cavalinho com prédios de 4–5 andares e na zona do Campus da Justiça (~2 400 fogos), novo Centro de Saúde, ruas do Cavalinho (`data/urbanizacao.geojson`); comparado com a base |
+| u0_base_urbanizacao | rede actual + urbanização (`[[developments]]`): lotes vazios da Costa, junto ao Hotel de Guimarães (600 fogos), no Monte do Cavalinho e na zona do Campus da Justiça (~2 700 fogos), novo Centro de Saúde e supermercado do Cavalinho; abre a rua do Monte do Cavalinho, já construída e hoje fechada (`data/pdm/cavalinho.geojson`, rua existente, não conta como via nova); comparado com a base |
 | u1…u5 | S1–S5 com a urbanização; comparados com U0 (campo `reference`) |
 | p0_pmus2030 | rede actual com a meta do PMUS de Guimarães para 2030: automóvel de 64% para 40% das deslocações dos residentes (`[variants.pmus2030]` em `params.toml`); comparado com a base |
 | p1, p2, p5 | S1, S2 e S5 com essa meta; comparados com P0 |
 | b1_autocarro | duas linhas de autocarro novas nas ruas existentes (Estação – Campus da Justiça, Centro – Costa; `bus_lines` no cenário, `[bus]` em `params.toml`, `scripts/busline.py`); 10% das viagens de carro junto às paragens com cobertura nova passam para o autocarro |
 | b2_ecovia_autocarro | as mesmas linhas com a via sobre a Ecovia; a linha do Campus passa por ela |
-| example_avenida_30 | exemplo de `modify` (fora do estudo: não começa por `s` nem `u`) |
+| example_avenida_30 | exemplo de `modify` (fora do estudo: só entram os ficheiros começados por `s`, `u`, `p`, `h` e `b`) |
 
 6. **Resultados** (`scripts/export_web.py`). Indicadores por cenário com intervalo de 95% sobre as
-   diferenças emparelhadas por semente, fluxos horários por rua, uso das vias novas, trajectos
-   de uma amostra de 12% dos carros entre as 8h e as 9h.
+   diferenças emparelhadas por semente face à referência de cada cenário, fluxos horários por
+   rua (e diferenças que se distinguem do ruído), uso das vias novas, trajectos de uma amostra
+   de 12% dos carros entre as 8h e as 9h. `scripts/local.py`: duração das viagens de e para
+   quatro zonas (Campus, Costa, Urgezes, centro). `scripts/corridors.py`: avenidas principais,
+   centro e cidade inteira nas horas de ponta (veículos, velocidade, tempo perdido).
+
+### Correcções da rede
+
+`data/corrections.geojson` (e `data/corrections.con.xml`) acertam a rede de hoje, em todos os
+cenários, com o que o OSM não tem ou tem mal. Cada uma traz uma nota com a razão:
+
+- Rua do Centro: sentido único (entrada pela Av. D. João IV) e 20 km/h.
+- Av. D. João IV: fechado o lado norte do triângulo junto à rotunda da estação (sem trânsito).
+- Parque da estação: o acesso a partir da Av. D. João IV (as vias de serviço não são importadas).
+- Costa: ruas residenciais a 30 km/h num raio de 650 m; a rua que sobe para a Penha fica a 50.
+- Alameda Mariano Felgueiras: ligações de vias antes da saída para a via rápida.
 
 ## Calibração — o que falta para os resultados serem defensáveis
 
@@ -134,14 +175,19 @@ são estimativas da literatura, não medições em Guimarães. Antes de publicar
 - A repartição modal é um parâmetro, não um modelo de escolha.
 - Estacionamento na rua e descargas em segunda fila são premissas (`ASSUMPTION`), sem
   procura de lugar.
-- Sem estacionamento: os veículos desaparecem ao chegar.
+- Sem procura de lugar: os veículos desaparecem ao chegar (ao parque, se o destino tiver um).
+- Semáforos só onde o OSM os marca num cruzamento (4 na área), com tempos gerados pelo
+  `netconvert`, não os reais; 6 pontos com semáforo fora de cruzamentos são passadeiras.
 - Procura fixa entre cenários, excepto nas variantes `_induzida`, que usam tempos em via
   livre: subestimam a indução onde a via nova alivia um corredor congestionado.
-- O PDM admite até ~100 000 entradas/dia depois da pandemia; o modelo usa ~69 000.
+- O PDM admite até ~100 000 entradas/dia depois da pandemia; o modelo dá ~65 600.
 - Emprego estimado por pesos sobre o OSM, sem dados de emprego por local. Substituir por
   dados do INE/GEP (Quadros de Pessoal) se forem obtidos.
 - As zonas fora da área têm actividade proporcional aos residentes (`outside_activity`).
-- Traçado das vias do PDM a partir de uma imagem (erro ~12 m) e ligações nas pontas assumidas.
+- Traçado das vias do PDM a partir de uma imagem (erro ~12 m) de um plano ainda em revisão, e
+  ligações nas pontas assumidas: traçados aproximados.
+- Novas linhas de autocarro sem passageiros: a passagem do carro para o autocarro é uma
+  premissa (`[bus].mode_shift`).
 
 ## Licença
 
