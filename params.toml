@@ -187,6 +187,8 @@ year = 2029
 jobs = 450                   # ASSUMPTION: magistrates, officials, lawyers; no public figure found
 retail = 40                  # ASSUMPTION: ~1 200 users/day
 replaces = "amenity=courthouse"  # the campus concentrates the courts now spread around the centre
+access_lon = -8.27245        # ASSUMPTION: its car park is reached from Av. Rio de Janeiro, the main road
+access_lat = 41.44751        # there (per the association), not from Rua Jaime Martins
 radius_m = 2500
 
 # --- time of day ---------------------------------------------------------------------

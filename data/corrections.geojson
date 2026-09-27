@@ -215,6 +215,28 @@
      ]
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "action": "area_speed",
+    "radius_m": 650,
+    "speed_kmh": 30,
+    "types": [
+     "residential",
+     "living_street",
+     "unclassified"
+    ],
+    "name": "Costa: ruas residenciais a 30 km/h",
+    "note": "Ruas estreitas, inclinadas e com estacionamento: na prática não se anda a mais de 30 km/h (indicação da associação). A rua principal que sobe para a Penha (R. Dr. José Augusto da Silva, terciária) fica a 50 km/h. No OSM não têm limite marcado e o modelo usava 50."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -8.2815,
+     41.4418
+    ]
+   }
   }
  ]
 }

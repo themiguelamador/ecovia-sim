@@ -167,9 +167,16 @@ for _, el in ET.iterparse(gzip.open(osm_file)):
         feature(tags, [nodes[n.get("ref")] for n in el.iter("nd") if n.get("ref") in nodes])
     el.clear()
 
+# big facilities have their own car park: attached at their access (access_lon/lat, else the
+# site) and arrivals there make no parallel-parking manoeuvre in the lane
+facility_edges = set()
 for p in projects:
+    axy = net.convertLonLat2XY(p["access_lon"], p["access_lat"]) if "access_lon" in p else p["xy"]
     for attr in ("jobs", "education", "retail"):
-        add(*p["xy"], attr, p.get(attr, 0))
+        add(*axy, attr, p.get(attr, 0))
+    fe = nearest_edge(*axy)
+    if fe is not None:
+        facility_edges.add(fe.getID())
 
 # age shares of new residents = those of the study area in the census
 tot_now = {a: sum(z.a[a] for z in zones.values() if not z.outer) for a in ("residents", "age_0_24", "age_25_64")}
@@ -396,9 +403,9 @@ rows = []
 share, man = P["on_street_parking_share"], P["parking_manoeuvre_s"]
 for i, (t, a, b) in enumerate(trips):
     attrs, inner_xml = 'departLane="free" departSpeed="max"', ""
-    if info[a][0] in LOCAL and rng.random() < share:
+    if info[a][0] in LOCAL and a not in facility_edges and rng.random() < share:
         attrs = 'departLane="free" departPos="random_free" departSpeed="0"'  # pulling out of a parking space
-    if info[b][0] in LOCAL and info[b][1] > 12 and info[b][2] is not None and rng.random() < share:
+    if info[b][0] in LOCAL and b not in facility_edges and info[b][1] > 12 and info[b][2] is not None and rng.random() < share:
         xml, pos = stop_xml(b, *man)  # parallel-parking manoeuvre in the lane, then gone
         attrs += f' arrivalPos="{min(info[b][1], pos + 1):.1f}"'
         inner_xml = xml

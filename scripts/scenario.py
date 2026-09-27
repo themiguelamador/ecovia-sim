@@ -12,6 +12,8 @@ Feature properties:
   name       street name                   (add only)
 A Point feature with action "split" and "street" cuts that street (both directions) at the
 point and makes a junction there, so an added line can end mid-street.
+A Point feature with action "area_speed", "radius_m", "speed_kmh" and "types" (road classes,
+e.g. ["residential"]) sets that speed on every segment of those classes within the radius.
 A Point feature with action "junction" and "type" (a SUMO junction type, e.g.
 "right_before_left") sets the type of the existing junction within 30 m of it.
 "add" line ends snap to an existing junction within 60 m (traced PDM lines are only ~15 m
@@ -124,6 +126,14 @@ def build(net, features):
     for i, f in enumerate(features):
         pr = f.get("properties") or {}
         if f["geometry"]["type"] == "Point":
+            if pr.get("action") == "area_speed":
+                x, y = net.convertLonLat2XY(*f["geometry"]["coordinates"])
+                types = {f"highway.{t}" for t in pr["types"]}
+                hit = [e for e, _ in net.getNeighboringEdges(x, y, pr["radius_m"])
+                       if e.getType().split("|")[0] in types and e.allows("passenger")
+                       and math.dist(e.getShape()[len(e.getShape()) // 2], (x, y)) <= pr["radius_m"]]
+                edges += [f'  <edge id="{e.getID()}" speed="{pr["speed_kmh"] / 3.6:.2f}"/>' for e in hit]
+                print(f"feature {i} (area_speed): {len(hit)} segments -> {pr['speed_kmh']} km/h")
             if pr.get("action") == "junction":
                 x, y = net.convertLonLat2XY(*f["geometry"]["coordinates"])
                 n = min(net.getNodes(), key=lambda n: math.dist(n.getCoord(), (x, y)))
