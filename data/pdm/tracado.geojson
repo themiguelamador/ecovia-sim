@@ -496,56 +496,15 @@
 "kind": "nova",
 "main": true,
 "road": 5,
-"share_on_existing_road": 0.32,
-"length_m": 214
+"share_on_existing_road": 0.11,
+"length_m": 765
 },
 "geometry": {
 "type": "LineString",
 "coordinates": [
 [
--8.298794,
-41.436063
-],
-[
--8.299123,
-41.436142
-],
-[
--8.299888,
-41.436016
-],
-[
--8.300807,
-41.435607
-],
-[
--8.301053,
-41.435398
-]
-]
-}
-},
-{
-"type": "Feature",
-"properties": {
-"group": "urgezes",
-"corridor": "Ligações Centro cidade – Urgezes",
-"kind": "nova",
-"main": true,
-"road": 5,
-"share_on_existing_road": 0.32,
-"length_m": 791
-},
-"geometry": {
-"type": "LineString",
-"coordinates": [
-[
--8.301053,
-41.435398
-],
-[
--8.30083,
-41.435034
+-8.300581,
+41.435033
 ],
 [
 -8.301026,

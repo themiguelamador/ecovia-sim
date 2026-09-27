@@ -22,6 +22,12 @@
   },
   {
    "file": "../data/pdm/urgezes_acesso.geojson"
+  },
+  {
+   "file": "../data/pdm/junctions.geojson",
+   "group": [
+    "urgezes"
+   ]
   }
  ],
  "features": [],

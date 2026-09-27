@@ -71,7 +71,7 @@ def near_line(edge, line):
 
 
 def build(net, features):
-    nodes, edges, remove, new_nodes, conns, dead_ends = [], [], [], [], [], set()
+    nodes, edges, remove, new_nodes, conns, dead_ends, splits = [], [], [], [], [], set(), {}
     degree = {}
 
     def feed(nid, new_edge, shape):
@@ -104,7 +104,8 @@ def build(net, features):
         nodes.append(f'  <node id="{nid}" x="{x:.2f}" y="{y:.2f}"/>')
         return nid
 
-    # splits first: the junctions they create must exist before lines snap to them
+    # splits first: the junctions they create must exist before lines snap to them (several
+    # splits of one street go in one <edge> element)
     for i, f in enumerate(features):
         pr = f.get("properties") or {}
         if f["geometry"]["type"] != "Point" or pr.get("action") != "split":
@@ -117,12 +118,13 @@ def build(net, features):
         for e in {c.getID(): c for c in cand}.values():
             pos = sumolib.geomhelper.polygonOffsetWithMinimumDistanceToPoint((x, y), e.getShape())
             if 5 < pos < e.getLength() - 5:
-                edges.append(f'  <edge id="{e.getID()}">\n    <split pos="{pos:.2f}" id="{nid}"/>\n  </edge>')
+                splits.setdefault(e.getID(), []).append(f'    <split pos="{pos:.2f}" id="{nid}"/>')
         sx, sy = sumolib.geomhelper.positionAtShapeOffset(cand[0].getShape(),
                                                           sumolib.geomhelper.polygonOffsetWithMinimumDistanceToPoint((x, y), cand[0].getShape()))
         new_nodes.append((nid, sx, sy))
         degree[nid] = 2  # a through street: never a loose end
         print(f"feature {i} (split): {pr['street']} at {nid}")
+    edges += [f'  <edge id="{eid}">\n' + "\n".join(sorted(v)) + "\n  </edge>" for eid, v in splits.items()]
     for i, f in enumerate(features):
         pr = f.get("properties") or {}
         if f["geometry"]["type"] == "Point":

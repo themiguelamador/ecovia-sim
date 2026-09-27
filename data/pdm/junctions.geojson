@@ -18,6 +18,22 @@
      41.43894
     ]
    }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "group": "urgezes",
+    "action": "split",
+    "street": "Rua António da Costa Guimarães",
+    "note": "Junção da via nova junto à linha do comboio (continuação da rua que vem de Urgezes) com a R. António da Costa Guimarães (indicação da associação)."
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -8.300581,
+     41.435033
+    ]
+   }
   }
  ]
 }

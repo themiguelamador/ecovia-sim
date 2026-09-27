@@ -75,7 +75,9 @@ MAIN_ROADS = [
     ("urgezes", "Ligações Centro cidade – Urgezes",
      [(565, 858), (545, 925), (520, 950)]),     # western branch from that junction
     ("urgezes", "Ligações Centro cidade – Urgezes",
-     [(455, 645), (408, 665), (405, 860)]),     # road beside the railway, down to its roundabout
+     [(408, 665), (405, 860)]),                 # road beside the railway, down to its roundabout; it continues the
+                                                # street from Urgezes and joins R. António da Costa Guimarães at its north
+                                                # end (the leg up the railway to the Colégio Militar is not part of it)
     ("urgezes", "Ligações Centro cidade – Urgezes",
      [(405, 860), (370, 905), (366, 950), (395, 985)]),   # from that roundabout, curving south
     ("urgezes", "Ligações Centro cidade – Urgezes",
@@ -100,6 +102,7 @@ EXISTING_M = 25       # metres: a point this close to an OSM road is "on" it
 # where the drawn line stops short of the junction it obviously ends on, extend the main road
 # (last leg) straight to that junction: lon/lat of the junction.
 EXTEND_TO = {
+    ("urgezes", (408, 665)): {"start_at": (-8.300581, 41.435033)},  # on R. António da Costa Guimarães (split there, junctions.geojson)
     "urgezes_main": {"start_at": (-8.29306, 41.43325)},  # the Cavalinho road's hairpin junction (built, data/corrections.geojson):
                                                         # the Urgezes link continues it, it does not leave the roundabout again
     "ecovia": {
@@ -280,7 +283,7 @@ if __name__ == "__main__":
             leg[0], leg[-1] = a, b  # legs meet exactly at the waypoints, so they snap together
             main_px.append(leg)
             m = px_to_m(T, rdp(leg, 1.5))
-            ext = EXTEND_TO.get(key, {})
+            ext = EXTEND_TO.get((key, wps[0]), EXTEND_TO.get(key, {}))  # (group, first waypoint): one road of a group
             if "start" in ext and j == 0:
                 m = np.vstack([to_m([ext["start"]]), m])
             if "start_at" in ext and j == 0:   # begin exactly there: drop the traced points before the nearest one
