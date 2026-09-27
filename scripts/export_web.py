@@ -173,11 +173,13 @@ for m in meta_scen:
     if s != "base":
         net = sumolib.net.readNet(f"{out}/{s}.net.xml")
         for e in net.getEdges():
-            if e.getID().lstrip("-").startswith("scn"):
+            eid = e.getID().lstrip("-")
+            if eid.startswith(("scn", "ext")):  # ext: built road that opens with the scenario, not a new road
                 v, sp = flows[s].get(e.getID(), ([0] * 24, [None] * 24))
-                new_edges.append({"name": e.getName(), "coords": coords(net, e), "veh": v, "speed": sp})
-                per_corridor[e.getName()][0] += sum(v) * e.getLength()
-                per_corridor[e.getName()][1] += e.getLength()
+                new_edges.append({"name": e.getName(), "coords": coords(net, e), "veh": v, "speed": sp, "existing": eid.startswith("ext")})
+                if eid.startswith("scn"):
+                    per_corridor[e.getName()][0] += sum(v) * e.getLength()
+                    per_corridor[e.getName()][1] += e.getLength()
     # daily vehicles per direction on the new roads, length-weighted, by PDM corridor
     m["new_roads"] = [{"corridor": c, "km": round(L / 2000, 2), "veh_day": round(vl / L)} for c, (vl, L) in per_corridor.items()]
     # per street and hour: the paired difference vs base, kept only where its 95% interval

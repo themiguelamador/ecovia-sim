@@ -6,6 +6,8 @@ Feature properties:
   lanes      lanes per direction           (add: default 1; modify: optional)
   speed_kmh  speed limit                   (add: default 50; modify: optional)
   oneway     true = only in drawing direction (add only)
+  existing   true = a built road closed today that opens with the scenario (not a planned new
+             road): ids prefixed "ext", so it is not reported as a new road
   dead_end   true = the line's end is meant to be a dead end (car park access): no connector
   street     modify/remove/oneway: only segments with this street name (a short segment of
              another street within 25 m would otherwise match too)
@@ -158,12 +160,13 @@ def build(net, features):
             if pr.get("name") or pr.get("corridor"):
                 attrs += f' name="{pr.get("name") or pr["corridor"]}"'
             shape = " ".join(f"{x:.2f},{y:.2f}" for x, y in line)
-            edges.append(f'  <edge id="{PFX}{i}" from="{a}" to="{b}" {attrs} shape="{shape}"/>')
-            feed(a, f"{PFX}{i}", line)
+            eid = f"{'ext' if pr.get('existing') else PFX}{i}"
+            edges.append(f'  <edge id="{eid}" from="{a}" to="{b}" {attrs} shape="{shape}"/>')
+            feed(a, eid, line)
             if not pr.get("oneway"):
                 rshape = " ".join(f"{x:.2f},{y:.2f}" for x, y in reversed(line))
-                edges.append(f'  <edge id="-{PFX}{i}" from="{b}" to="{a}" {attrs} shape="{rshape}"/>')
-                feed(b, f"-{PFX}{i}", line[::-1])
+                edges.append(f'  <edge id="-{eid}" from="{b}" to="{a}" {attrs} shape="{rshape}"/>')
+                feed(b, f"-{eid}", line[::-1])
         else:
             hits = [e for e in net.getEdges() if near_line(e, line) and pr.get("street", e.getName()) == e.getName()]
             if not hits:
@@ -231,7 +234,7 @@ if __name__ == "__main__":
     patched = sumolib.net.readNet(out)
     new_ids = {n.split('"')[1] for n in nodes if 'type=' not in n}  # not the retyped junctions
     dead = [e.getID() for e in patched.getEdges()
-            if e.getID().lstrip("-").startswith(PFX) and not e.getIncoming() and e.getFromNode().getID() not in new_ids
+            if e.getID().lstrip("-").startswith((PFX, "ext")) and not e.getIncoming() and e.getFromNode().getID() not in new_ids
             and not e.getFromNode().getID().startswith(f"{PFX}s")]
     if dead:
         sys.exit(f"new edges with no way in: {dead}")

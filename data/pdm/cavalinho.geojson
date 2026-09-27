@@ -1,6 +1,6 @@
 {
  "type": "FeatureCollection",
- "description": "Rua nova do Monte do Cavalinho, abre com a urbanização do Monte do Cavalinho (hoje fechada, sem fogos): só nos cenários U: saída sudoeste da rotunda da estação, gancho (onde continua a ligação a Urgezes), topo dos lotes e subida até à R. António da Costa Guimarães junto à linha do comboio. Traçada sobre imagem de satélite (Esri 2026) e confirmada pela associação.",
+ "description": "Rua do Monte do Cavalinho: já construída, hoje fechada; abre com a urbanização (só nos cenários U). Não é uma via nova do PDM. Saída sudoeste da rotunda da estação, gancho (onde continua a ligação a Urgezes), topo dos lotes e subida até à R. António da Costa Guimarães junto à linha do comboio. Traçada sobre imagem de satélite (Esri 2026) e confirmada pela associação.",
  "features": [
   {
    "type": "Feature",
@@ -22,10 +22,11 @@
    "type": "Feature",
    "properties": {
     "action": "add",
-    "name": "Monte do Cavalinho (rua nova, PDM)",
+    "name": "Monte do Cavalinho",
     "speed_kmh": 30,
     "note": "Rua nova do Monte do Cavalinho, já construída mas ausente do OpenStreetMap (traçada sobre imagem de satélite Esri 2026): saída sul da rotunda da estação, desce a encosta e segue para poente até à rotunda poente.",
-    "group": "cavalinho"
+    "group": "cavalinho",
+    "existing": true
    },
    "geometry": {
     "type": "LineString",
@@ -57,10 +58,11 @@
    "type": "Feature",
    "properties": {
     "action": "add",
-    "name": "Monte do Cavalinho (rua nova, PDM)",
+    "name": "Monte do Cavalinho",
     "speed_kmh": 30,
     "note": "Rua nova do Monte do Cavalinho, já construída mas ausente do OpenStreetMap (traçada sobre imagem de satélite Esri 2026): saída sul da rotunda da estação, desce a encosta e segue para poente até à rotunda poente.",
-    "group": "cavalinho"
+    "group": "cavalinho",
+    "existing": true
    },
    "geometry": {
     "type": "LineString",
